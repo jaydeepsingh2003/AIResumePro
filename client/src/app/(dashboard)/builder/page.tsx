@@ -4,25 +4,41 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function BuilderPage() {
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.push("/login");
+        } else {
+            setIsLoading(false);
+        }
+    }, [router]);
+
     // Mock resumes
     const resumes = [
         { id: "1", title: "Software Engineer Resume", updatedAt: "2h ago" },
         { id: "2", title: "Product Manager Role", updatedAt: "1d ago" },
     ];
 
+    if (isLoading) return null;
+
     return (
-        <div className="h-full p-8 space-y-8">
-            <div className="flex items-center justify-between">
+        <div className="h-full p-4 sm:p-8 space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">My Resumes</h2>
                     <p className="text-muted-foreground">Manage and create your professional resumes.</p>
                 </div>
                 <Link href="/builder/new">
-                    <Button>
+                    <Button className="w-full sm:w-auto">
                         <Plus className="mr-2 h-4 w-4" />
-                        Create New
+                        Create New Masterpiece
                     </Button>
                 </Link>
             </div>
@@ -48,8 +64,8 @@ export default function BuilderPage() {
                             <CardContent>
                                 <div className="aspect-[210/297] bg-slate-100 rounded-md w-full relative overflow-hidden">
                                     {/* Thumbnail placeholder */}
-                                    <div className="absolute inset-0 flex items-center justify-center text-slate-300 text-xs">
-                                        Preview
+                                    <div className="absolute inset-0 flex items-center justify-center text-slate-300 text-xs text-center p-4">
+                                        Previewing Neural Architecture
                                     </div>
                                 </div>
                             </CardContent>

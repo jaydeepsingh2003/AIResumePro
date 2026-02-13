@@ -29,11 +29,23 @@ function EditorContent() {
     const layoutParam = searchParams.get('layout');
     const templateParam = searchParams.get('template');
 
-    // Local state for the editor (when coming from /templates, apply layout + templateId)
+    const [token, setToken] = useState<string | null>(null);
+
+    useEffect(() => {
+        const storedToken = localStorage.getItem("token");
+        setToken(storedToken);
+
+        // If not logged in and trying to access an existing resume, redirect
+        if (!storedToken && !isNew) {
+            router.push("/login");
+        }
+    }, [isNew, router]);
+
+    // Local state for the editor
     const [resume, setResume] = useState<Resume>(() => {
         if (!isNew) return mockResume;
         const template = templateParam ? RESUME_TEMPLATES.find(t => t.id === templateParam) : null;
-        const layout = layoutParam && ['sidebar','single','double','minimal'].includes(layoutParam)
+        const layout = layoutParam && ['sidebar', 'single', 'double', 'minimal'].includes(layoutParam)
             ? layoutParam as 'sidebar' | 'single' | 'double' | 'minimal'
             : template ? getLayoutForCategory(template.category) : mockResume.style?.layout || 'single';
         return {
@@ -52,7 +64,7 @@ function EditorContent() {
     const { data: fetchedResume, isLoading: isLoadingResume } = useQuery({
         queryKey: ['resume', id],
         queryFn: () => fetchResume(id),
-        enabled: !isNew,
+        enabled: !isNew && !!token,
     });
 
     // Update local state when fetched data arrives
@@ -63,6 +75,13 @@ function EditorContent() {
     }, [fetchedResume]);
 
     const handleSave = () => {
+        if (!token) {
+            // Store progress in session storage and redirect to register
+            sessionStorage.setItem("pending_resume", JSON.stringify(resume));
+            router.push("/register?callback=/builder/new");
+            return;
+        }
+
         setIsSaving(true);
         saveMutation.mutate(resume, {
             onSettled: () => setIsSaving(false)
@@ -107,7 +126,7 @@ function EditorContent() {
         }
     });
 
-    if (isLoadingResume) {
+    if (isLoadingResume && token) {
         return (
             <div className="flex flex-col items-center justify-center h-screen bg-slate-50 gap-4">
                 <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
@@ -132,10 +151,12 @@ function EditorContent() {
                             <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
                                 {resume.title || "Untitled Resume"}
                             </h1>
-                            <div className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase text-slate-500 tracking-tighter">Draft</div>
+                            <div className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase text-slate-500 tracking-tighter text-indigo-600">
+                                {!token ? "Guest Draft" : "Draft"}
+                            </div>
                         </div>
                         <p className="text-xs font-bold text-slate-400">
-                            {isNew ? "Editing New Masterpiece" : "Auto-saved just now"}
+                            {isNew ? (token ? "Editing New Masterpiece" : "Guest Mode - Real-time Builder") : "Auto-saved just now"}
                         </p>
                     </div>
                 </div>
@@ -157,7 +178,7 @@ function EditorContent() {
                         disabled={isSaving}
                     >
                         {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4 text-indigo-600" />}
-                        Save
+                        {token ? "Save" : "Save & Register"}
                     </Button>
 
                     <PDFDownloadLink
@@ -210,6 +231,30 @@ function EditorContent() {
                     />
                 )}
             </AnimatePresence>
+
+            {!token && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+                    <motion.div
+                        initial={{ y: 100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        className="glass p-4 rounded-2xl border border-indigo-500/30 flex items-center gap-6 shadow-2xl backdrop-blur-xl"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-indigo-500/10 rounded-lg">
+                                <Sparkles className="w-4 h-4 text-indigo-500" />
+                            </div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">You are building as a Guest. Save your work to the Neural Cloud.</p>
+                        </div>
+                        <Button
+                            size="sm"
+                            onClick={() => router.push("/register")}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest h-10 px-6"
+                        >
+                            Claim Identity
+                        </Button>
+                    </motion.div>
+                </div>
+            )}
 
             <div className="lg:hidden fixed bottom-6 right-6">
                 <Button

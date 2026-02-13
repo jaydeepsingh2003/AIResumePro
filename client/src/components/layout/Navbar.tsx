@@ -115,7 +115,7 @@ export const Navbar = () => {
                             <Link href="/login">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white cursor-pointer hidden sm:inline-flex transition-colors">Secure_Login</span>
                             </Link>
-                            <Link href="/register">
+                            <Link href="/builder/new">
                                 <Button className="bg-white text-black hover:bg-neon-cyan px-8 h-12 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] active:scale-95">
                                     Initialize Builder
                                 </Button>
