@@ -1,0 +1,36 @@
+[
+    {
+        "id": "1",
+        "title": "Software Engineer Resume",
+        "updatedAt": "2h ago",
+        "content": {
+            "basics": {
+                "name": "Jane Doe",
+                "email": "jane@example.com",
+                "phone": "555-555-5555",
+                "summary": "Experienced dev."
+            },
+            "work": [],
+            "education": [],
+            "skills": [],
+            "projects": []
+        }
+    },
+    {
+        "id": "2",
+        "title": "Product Manager Role",
+        "updatedAt": "1d ago",
+        "content": {
+            "basics": {
+                "name": "John Smith",
+                "email": "john@example.com",
+                "phone": "555-123-4567",
+                "summary": "Product leader."
+            },
+            "work": [],
+            "education": [],
+            "skills": [],
+            "projects": []
+        }
+    }
+]
