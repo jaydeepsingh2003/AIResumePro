@@ -1,12 +1,14 @@
 'use client';
 
+import React from 'react';
+
 import { Resume, ResumeContent } from '@/types/resume';
-import { TemplateConfig, TemplateFieldConfig, DEFAULT_FIELD_CONFIG } from '@/types/template';
+import { ResumeDesignConfig, TemplateFieldConfig, DEFAULT_FIELD_CONFIG } from '@/types/template-design';
 import { Mail, Phone, MapPin, Globe, Github, Linkedin, Calendar, Award, BookOpen, Users, Heart, Building, FileText, Presentation } from 'lucide-react';
 
 export interface BaseTemplateProps {
     resume: Resume;
-    config: TemplateConfig;
+    config: ResumeDesignConfig;
     fieldConfig?: Partial<TemplateFieldConfig>;
     preview?: boolean;
 }
@@ -17,11 +19,11 @@ export interface BaseTemplateProps {
  */
 export class BaseTemplate {
     protected resume: Resume;
-    protected config: TemplateConfig;
+    protected config: ResumeDesignConfig;
     protected fieldConfig: TemplateFieldConfig;
     protected content: ResumeContent;
 
-    constructor(resume: Resume, config: TemplateConfig, fieldConfig?: Partial<TemplateFieldConfig>) {
+    constructor(resume: Resume, config: ResumeDesignConfig, fieldConfig?: Partial<TemplateFieldConfig>) {
         this.resume = resume;
         this.config = config;
         this.content = resume.content;
@@ -93,7 +95,7 @@ export class BaseTemplate {
     /**
      * Render contact icons
      */
-    protected renderContactIcon(type: string, size: number = 16): JSX.Element | null {
+    protected renderContactIcon(type: string, size: number = 16): React.JSX.Element | null {
         const iconProps = { size, className: 'inline-block' };
 
         switch (type) {
@@ -120,7 +122,7 @@ export class BaseTemplate {
     /**
      * Render header/basics section
      */
-    protected renderHeader(): JSX.Element {
+    protected renderHeader(): React.JSX.Element {
         const { basics } = this.content;
         const { fieldConfig } = this;
 
@@ -186,7 +188,7 @@ export class BaseTemplate {
     /**
      * Render summary/objective
      */
-    protected renderSummary(): JSX.Element | null {
+    protected renderSummary(): React.JSX.Element | null {
         const { basics } = this.content;
         const { fieldConfig } = this;
 
@@ -242,7 +244,7 @@ export class BaseTemplate {
     /**
      * Render work experience
      */
-    protected renderWorkExperience(): JSX.Element | null {
+    protected renderWorkExperience(): React.JSX.Element | null {
         if (!this.hasContent('work')) return null;
 
         return (
@@ -378,7 +380,7 @@ export class BaseTemplate {
     /**
      * Render education
      */
-    protected renderEducation(): JSX.Element | null {
+    protected renderEducation(): React.JSX.Element | null {
         if (!this.hasContent('education')) return null;
 
         return (
@@ -465,7 +467,7 @@ export class BaseTemplate {
     /**
      * Render skills
      */
-    protected renderSkills(): JSX.Element | null {
+    protected renderSkills(): React.JSX.Element | null {
         if (!this.hasContent('skills')) return null;
 
         return (
@@ -525,3 +527,4 @@ export class BaseTemplate {
 
     // Continue in next file...
 }
+

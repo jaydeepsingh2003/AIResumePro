@@ -184,9 +184,10 @@ export interface Resume {
     style: {
         theme: string;
         font: string;
-        layout: 'single' | 'double' | 'sidebar' | 'minimal';
+        layout: string;
         color?: string;
         templateId?: string;
         sectionOrder?: string[];
+        visibleSections?: { [key: string]: boolean };
     };
 }

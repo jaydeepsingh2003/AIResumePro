@@ -47,12 +47,12 @@ export default function LoginPage() {
                         <Sparkles className="w-10 h-10 text-neon-cyan drop-shadow-[0_0_10px_rgba(0,242,255,1)]" />
                     </motion.div>
 
-                    <h1 className="text-6xl font-black mb-8 tracking-tighter uppercase italic leading-[1.1]">
+                    <h1 className="text-4xl sm:text-5xl font-black mb-6 tracking-tighter uppercase italic leading-tight">
                         Reignite Your <br />
                         <span className="text-neon-cyan drop-shadow-[0_0_15px_rgba(0,242,255,0.6)]">Professional Code.</span>
                     </h1>
 
-                    <p className="text-xl text-slate-400 font-black uppercase tracking-widest leading-relaxed mb-16 opacity-80">
+                    <p className="text-sm sm:text-base text-slate-400 font-bold uppercase tracking-wider leading-relaxed mb-12 opacity-80">
                         Interrogating the global talent matrix. <br />
                         Elevate your career frequency to the elite tier.
                     </p>
@@ -96,16 +96,16 @@ export default function LoginPage() {
                     </Link>
 
                     <div className="mb-10 sm:mb-14">
-                        <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tighter uppercase italic">Access.</h2>
-                        <p className="text-slate-500 mt-2 sm:mt-3 text-[10px] sm:text-xs font-black uppercase tracking-widest">Identify your digital footprint.</p>
+                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tighter uppercase italic">Access.</h2>
+                        <p className="text-slate-500 mt-2 text-[10px] font-bold uppercase tracking-wider">Identify your digital footprint.</p>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
                         <div className="space-y-2 sm:space-y-3">
                             <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Digital Identifier</label>
                             <Input
-                                placeholder="IDENTIFYING@EMAIL.COM"
-                                className="h-14 sm:h-16 bg-white/5 border-white/10 text-white focus:border-neon-cyan transition-all rounded-xl sm:rounded-2xl px-5 sm:px-6 font-black tracking-widest uppercase text-[10px] sm:text-xs placeholder:text-slate-800"
+                                placeholder="identifying@email.com"
+                                className="h-11 bg-white/5 border-white/10 text-white focus:border-neon-cyan transition-all rounded-xl px-4 font-medium text-sm placeholder:text-slate-700"
                                 type="email"
                                 {...register("email", { required: true })}
                             />
@@ -117,12 +117,12 @@ export default function LoginPage() {
                             </div>
                             <Input
                                 placeholder="••••••••"
-                                className="h-14 sm:h-16 bg-white/5 border-white/10 text-white focus:border-neon-cyan transition-all rounded-xl sm:rounded-2xl px-5 sm:px-6 font-black tracking-widest text-[10px] sm:text-xs placeholder:text-slate-800"
+                                className="h-11 bg-white/5 border-white/10 text-white focus:border-neon-cyan transition-all rounded-xl px-4 font-medium text-sm placeholder:text-slate-700"
                                 type="password"
                                 {...register("password", { required: true })}
                             />
                         </div>
-                        <Button type="submit" className="w-full h-14 sm:h-16 bg-white text-black hover:bg-neon-cyan rounded-xl sm:rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] sm:text-xs transition-all hover:scale-[1.02] shadow-[0_0_30px_rgba(255,255,255,0.15)] mt-4 disabled:bg-slate-800 disabled:text-slate-500" disabled={loginMutation.isPending}>
+                        <Button type="submit" className="w-full h-12 bg-white text-black hover:bg-neon-cyan rounded-xl font-bold uppercase tracking-wider text-xs transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.15)] mt-4 disabled:bg-slate-800 disabled:text-slate-500" disabled={loginMutation.isPending}>
                             {loginMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Initiate Login"}
                         </Button>
                     </form>

@@ -26,7 +26,7 @@ export default function PricingPage() {
               viewport={{ once: true }}
               className="glass rounded-[4rem] p-16 border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.3)]"
             >
-              <h2 className="text-4xl lg:text-5xl font-black text-white mb-6 tracking-tighter uppercase italic">
+              <h2 className="text-3xl lg:text-4xl font-black text-white mb-6 tracking-tighter uppercase italic">
                 NEED A CUSTOM <br />
                 <span className="text-neon-cyan drop-shadow-[0_0_15px_rgba(0,242,255,0.5)]">PROTOCOL?</span>
               </h2>
@@ -37,13 +37,13 @@ export default function PricingPage() {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <Link href="/#pricing">
-                  <Button className="h-16 px-12 bg-white text-black hover:bg-neon-cyan rounded-2xl font-black uppercase tracking-widest text-xs transition-all hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.15)]">
+                  <Button className="h-11 px-8 bg-white text-black hover:bg-neon-cyan rounded-xl font-bold uppercase tracking-wider text-[10px] transition-all hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.15)]">
                     Initiate Contact Protocol
                   </Button>
                 </Link>
                 <Link href="/">
-                  <Button variant="outline" className="h-16 px-12 glass border-white/10 text-white hover:bg-white/5 rounded-2xl font-black uppercase tracking-widest text-xs transition-all">
-                    <ArrowLeft className="w-4 h-4 mr-3" />
+                  <Button variant="outline" className="h-11 px-8 glass border-white/10 text-white hover:bg-white/5 rounded-xl font-bold uppercase tracking-wider text-[10px] transition-all">
+                    <ArrowLeft className="w-3.5 h-3.5 mr-2" />
                     Return to Base
                   </Button>
                 </Link>

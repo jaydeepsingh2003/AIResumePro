@@ -1,5 +1,5 @@
-import { TemplateConfig } from '@/types/template';
-import { TEMPLATE_CONFIGS as EXISTING_CONFIGS, getTemplateConfig as getExistingConfig } from './configs';
+import { ResumeDesignConfig } from '@/types/template-design';
+import { TEMPLATE_CONFIGS as EXISTING_CONFIGS, getResumeDesignConfig as getExistingConfig } from './configs';
 
 /**
  * ALL 50 TEMPLATE CONFIGURATIONS
@@ -10,7 +10,7 @@ import { TEMPLATE_CONFIGS as EXISTING_CONFIGS, getTemplateConfig as getExistingC
 const BASE_CONFIGS = EXISTING_CONFIGS;
 
 // Add remaining configurations
-const ADDITIONAL_CONFIGS: Record<string, TemplateConfig> = {
+const ADDITIONAL_CONFIGS: Record<string, ResumeDesignConfig> = {
     // TECH 14-20 (7 more)
     'tech-14': { id: 'tech-14', colors: { primary: '#1e293b', secondary: '#475569', accent: '#06b6d4', text: '#334155', textLight: '#64748b', background: '#ffffff', border: '#e2e8f0' }, fonts: { heading: 'Inter, sans-serif', body: 'Inter, sans-serif', size: { name: '28px', heading: '16px', subheading: '13px', body: '10px', small: '8px' }, weight: { heading: 700, subheading: 600, body: 400 } }, spacing: { section: '20px', item: '12px', margin: '40px', padding: '14px' }, layout: { type: 'minimal', columns: 1 }, borders: { style: 'solid', width: '1px', radius: '4px' }, icons: { show: true, style: 'outline' } },
     'tech-15': { id: 'tech-15', colors: { primary: '#1e40af', secondary: '#3b82f6', accent: '#60a5fa', text: '#1f2937', textLight: '#6b7280', background: '#f9fafb', border: '#d1d5db' }, fonts: { heading: 'Roboto Mono, monospace', body: 'Roboto, sans-serif', size: { name: '30px', heading: '17px', subheading: '13px', body: '10px', small: '8px' }, weight: { heading: 700, subheading: 600, body: 400 } }, spacing: { section: '22px', item: '13px', margin: '42px', padding: '15px' }, layout: { type: 'single', columns: 1 }, borders: { style: 'solid', width: '2px', radius: '6px' }, icons: { show: true, style: 'solid' } },
@@ -60,7 +60,7 @@ const ADDITIONAL_CONFIGS: Record<string, TemplateConfig> = {
 };
 
 // Combine all configs
-export const ALL_TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
+export const ALL_TEMPLATE_CONFIGS: Record<string, ResumeDesignConfig> = {
     ...BASE_CONFIGS,
     ...ADDITIONAL_CONFIGS,
 };
@@ -68,7 +68,7 @@ export const ALL_TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
 /**
  * Get template configuration by ID
  */
-export function getTemplateConfig(templateId: string): TemplateConfig {
+export function getResumeDesignConfig(templateId: string): ResumeDesignConfig {
     return ALL_TEMPLATE_CONFIGS[templateId] || ALL_TEMPLATE_CONFIGS['corp-01'];
 }
 
@@ -92,3 +92,4 @@ export function getTemplatesByCategory(category: 'corp' | 'tech' | 'creative' | 
 export function templateExists(templateId: string): boolean {
     return templateId in ALL_TEMPLATE_CONFIGS;
 }
+

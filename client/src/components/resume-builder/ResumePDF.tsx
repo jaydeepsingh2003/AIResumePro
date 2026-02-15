@@ -7,9 +7,9 @@ import { Resume } from '@/types/resume';
 Font.register({
     family: 'Inter',
     fonts: [
-        { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2', fontWeight: 400 },
-        { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hiA.woff2', fontWeight: 700 },
-        { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuNYZ9hiA.woff2', fontWeight: 900 },
+        { src: 'https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Regular.ttf', fontWeight: 400 },
+        { src: 'https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Bold.ttf', fontWeight: 700 },
+        { src: 'https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Black.ttf', fontWeight: 900 },
     ],
 });
 
@@ -36,7 +36,7 @@ const createStyles = (accentColor: string) => StyleSheet.create({
     },
     sidebarSectionTitle: {
         fontSize: 8,
-        fontWeight: 'black',
+        fontWeight: 900,
         textTransform: 'uppercase',
         letterSpacing: 1.5,
         color: '#94a3b8',
@@ -55,7 +55,7 @@ const createStyles = (accentColor: string) => StyleSheet.create({
         textTransform: 'uppercase',
         color: '#64748b',
         marginBottom: 2,
-        fontWeight: 'bold',
+        fontWeight: 700,
     },
     skillBadgeContainer: {
         flexDirection: 'row',
@@ -75,14 +75,14 @@ const createStyles = (accentColor: string) => StyleSheet.create({
     // Main Content Styles
     name: {
         fontSize: 28,
-        fontWeight: 'black',
+        fontWeight: 900,
         textTransform: 'uppercase',
         marginBottom: 4,
         color: '#0f172a',
     },
     label: {
         fontSize: 11,
-        fontWeight: 'bold',
+        fontWeight: 700,
         textTransform: 'uppercase',
         letterSpacing: 2,
         color: accentColor,
@@ -96,7 +96,7 @@ const createStyles = (accentColor: string) => StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 9,
-        fontWeight: 'black',
+        fontWeight: 900,
         textTransform: 'uppercase',
         letterSpacing: 1.5,
         color: '#64748b',
@@ -109,18 +109,18 @@ const createStyles = (accentColor: string) => StyleSheet.create({
     },
     itemTitle: {
         fontSize: 11,
-        fontWeight: 'bold',
+        fontWeight: 700,
         color: '#0f172a',
     },
     itemSubtitle: {
         fontSize: 9,
-        fontWeight: 'bold',
+        fontWeight: 700,
         color: accentColor,
         marginBottom: 2,
     },
     dateRange: {
         fontSize: 8,
-        fontWeight: 'bold',
+        fontWeight: 700,
         color: '#94a3b8',
         textTransform: 'uppercase',
     },
@@ -145,7 +145,7 @@ const createStyles = (accentColor: string) => StyleSheet.create({
     },
     metricText: {
         fontSize: 8,
-        fontWeight: 'bold',
+        fontWeight: 700,
         color: '#334155',
     },
 
@@ -170,6 +170,9 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
         interests, affiliations, patents, conferences, references,
         showReferencesToggle
     } = resume.content;
+
+    const visibleSections = resume.style?.visibleSections || {};
+    const isVisible = (section: string) => visibleSections[section] !== false;
 
     const SectionTitle = ({ title }: { title: string }) => (
         <View style={styles.sectionHeader}>
@@ -219,7 +222,7 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
                     )}
                 </View>
 
-                {skills && skills.length > 0 && (
+                {isVisible('skills') && skills && skills.length > 0 && (
                     <View style={{ marginBottom: 15 }}>
                         <Text style={styles.sidebarSectionTitle}>Skills</Text>
                         <View style={styles.skillBadgeContainer}>
@@ -230,46 +233,46 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
                     </View>
                 )}
 
-                {languages && languages.length > 0 && (
+                {isVisible('languages') && languages && languages.length > 0 && (
                     <View style={{ marginBottom: 15 }}>
                         <Text style={styles.sidebarSectionTitle}>Languages</Text>
                         {languages.map((l, i) => (
                             <View key={i} style={{ marginBottom: 4 }}>
-                                <Text style={{ ...styles.sidebarText, fontWeight: 'bold', color: '#fff', marginBottom: 1 }}>{l.language}</Text>
+                                <Text style={{ ...styles.sidebarText, fontWeight: 700, color: '#fff', marginBottom: 1 }}>{l.language}</Text>
                                 <Text style={{ ...styles.sidebarText, fontSize: 7, color: '#94a3b8' }}>{l.fluency}</Text>
                             </View>
                         ))}
                     </View>
                 )}
 
-                {certifications && certifications.length > 0 && (
+                {isVisible('certifications') && certifications && certifications.length > 0 && (
                     <View style={{ marginBottom: 15 }}>
                         <Text style={styles.sidebarSectionTitle}>Certifications</Text>
                         {certifications.map((c, i) => (
                             <View key={i} style={{ marginBottom: 6 }}>
-                                <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#fff' }}>{c.name}</Text>
+                                <Text style={{ fontSize: 8, fontWeight: 700, color: '#fff' }}>{c.name}</Text>
                                 <Text style={{ fontSize: 7, color: '#94a3b8' }}>{c.issuer} | {c.date}</Text>
                             </View>
                         ))}
                     </View>
                 )}
 
-                {affiliations && affiliations.length > 0 && (
+                {isVisible('affiliations') && affiliations && affiliations.length > 0 && (
                     <View style={{ marginBottom: 15 }}>
                         <Text style={styles.sidebarSectionTitle}>Affiliations</Text>
                         {affiliations.map((a, i) => (
                             <View key={i} style={{ marginBottom: 6 }}>
-                                <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#fff' }}>{a.organization}</Text>
+                                <Text style={{ fontSize: 8, fontWeight: 700, color: '#fff' }}>{a.organization}</Text>
                                 <Text style={{ fontSize: 7, color: '#94a3b8' }}>{a.role}</Text>
                             </View>
                         ))}
                     </View>
                 )}
 
-                {showReferencesToggle && (
+                {isVisible('references') && showReferencesToggle && (
                     <View style={{ marginTop: 'auto' }}>
                         <Text style={styles.sidebarSectionTitle}>References</Text>
-                        <Text style={{ ...styles.sidebarText, fontSize: 7, fontStyle: 'italic', color: '#94a3b8' }}>
+                        <Text style={{ ...styles.sidebarText, fontSize: 7, color: '#94a3b8' }}>
                             Professional references available upon request.
                         </Text>
                     </View>
@@ -286,14 +289,14 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
                         {basics.summary && <Text style={styles.description}>{basics.summary}</Text>}
                         {basics.objective && (
                             <View style={{ backgroundColor: '#f8fafc', padding: 8, borderRadius: 4, marginBottom: 8, borderLeft: `2pt solid ${accentColor}` }}>
-                                <Text style={{ fontSize: 7, fontWeight: 'bold', color: '#64748b', marginBottom: 2, textTransform: 'uppercase' }}>Objective</Text>
-                                <Text style={{ fontSize: 9, fontStyle: 'italic', color: '#475569' }}>{basics.objective}</Text>
+                                <Text style={{ fontSize: 7, fontWeight: 700, color: '#64748b', marginBottom: 2, textTransform: 'uppercase' }}>Objective</Text>
+                                <Text style={{ fontSize: 9, color: '#475569' }}>{basics.objective}</Text>
                             </View>
                         )}
                     </View>
                 )}
 
-                {work && work.length > 0 && (
+                {isVisible('work') && work && work.length > 0 && (
                     <View style={{ marginBottom: 10 }}>
                         <SectionTitle title="Experience" />
                         {work.map((job, i) => (
@@ -314,13 +317,13 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
                     </View>
                 )}
 
-                {projects && projects.length > 0 && (
+                {isVisible('projects') && projects && projects.length > 0 && (
                     <View style={{ marginBottom: 10 }}>
                         <SectionTitle title="Projects" />
                         {projects.map((p, i) => (
                             <View key={i} style={{ marginBottom: 10 }}>
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0f172a' }}>{p.name}</Text>
+                                    <Text style={{ fontSize: 10, fontWeight: 700, color: '#0f172a' }}>{p.name}</Text>
                                     <Text style={styles.dateRange}>{p.role}</Text>
                                 </View>
                                 <Text style={styles.description}>{p.description}</Text>
@@ -329,16 +332,16 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
                     </View>
                 )}
 
-                {education && education.length > 0 && (
+                {isVisible('education') && education && education.length > 0 && (
                     <View style={{ marginBottom: 10 }}>
                         <SectionTitle title="Education" />
                         {education.map((edu, i) => (
                             <View key={i} style={{ marginBottom: 8 }}>
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                    <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{edu.institution}</Text>
+                                    <Text style={{ fontSize: 10, fontWeight: 700 }}>{edu.institution}</Text>
                                     <Text style={styles.dateRange}>{edu.startDate} – {edu.endDate}</Text>
                                 </View>
-                                <Text style={{ fontSize: 9, color: accentColor, fontWeight: 'bold' }}>{edu.studyType} in {edu.area}</Text>
+                                <Text style={{ fontSize: 9, color: accentColor, fontWeight: 700 }}>{edu.studyType} in {edu.area}</Text>
                                 {edu.score && <Text style={{ fontSize: 8, color: '#64748b' }}>GPA: {edu.score}</Text>}
                             </View>
                         ))}
@@ -347,12 +350,12 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
 
                 <View style={styles.gridRow}>
                     <View style={styles.gridCol}>
-                        {awards && awards.length > 0 && (
+                        {isVisible('awards') && awards && awards.length > 0 && (
                             <View>
                                 <SectionTitle title="Awards" />
                                 {awards.map((a, i) => (
                                     <View key={i} style={{ marginBottom: 6 }}>
-                                        <Text style={{ fontSize: 9, fontWeight: 'bold' }}>{a.title}</Text>
+                                        <Text style={{ fontSize: 9, fontWeight: 700 }}>{a.title}</Text>
                                         <Text style={{ fontSize: 7, color: '#64748b' }}>{a.issuer} | {a.date}</Text>
                                         {a.description && <Text style={{ fontSize: 7, color: '#475569', marginTop: 2 }}>{a.description}</Text>}
                                     </View>
@@ -361,12 +364,12 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
                         )}
                     </View>
                     <View style={styles.gridCol}>
-                        {publications && publications.length > 0 && (
+                        {isVisible('publications') && publications && publications.length > 0 && (
                             <View>
                                 <SectionTitle title="Publications" />
                                 {publications.map((p, i) => (
                                     <View key={i} style={{ marginBottom: 6 }}>
-                                        <Text style={{ fontSize: 9, fontWeight: 'bold' }}>{p.title}</Text>
+                                        <Text style={{ fontSize: 9, fontWeight: 700 }}>{p.title}</Text>
                                         <Text style={{ fontSize: 7, color: '#64748b' }}>{p.publisher} | {p.date}</Text>
                                     </View>
                                 ))}
@@ -375,12 +378,12 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
                     </View>
                 </View>
 
-                {leadership && leadership.length > 0 && (
+                {isVisible('leadership') && leadership && leadership.length > 0 && (
                     <View style={{ marginBottom: 10 }}>
                         <SectionTitle title="Leadership" />
                         {leadership.map((l, i) => (
                             <View key={i} style={{ marginBottom: 8 }}>
-                                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{l.role} @ {l.organization}</Text>
+                                <Text style={{ fontSize: 10, fontWeight: 700 }}>{l.role} @ {l.organization}</Text>
                                 <Text style={{ fontSize: 8, color: '#475569' }}>{l.impact}</Text>
                             </View>
                         ))}
@@ -389,12 +392,12 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
 
                 <View style={styles.gridRow}>
                     <View style={styles.gridCol}>
-                        {patents && patents.length > 0 && (
+                        {isVisible('patents') && patents && patents.length > 0 && (
                             <View>
                                 <SectionTitle title="Patents" />
                                 {patents.map((p, i) => (
                                     <View key={i} style={{ marginBottom: 6 }}>
-                                        <Text style={{ fontSize: 9, fontWeight: 'bold' }}>{p.title}</Text>
+                                        <Text style={{ fontSize: 9, fontWeight: 700 }}>{p.title}</Text>
                                         <Text style={{ fontSize: 7, color: '#64748b' }}>{p.number} | {p.date}</Text>
                                     </View>
                                 ))}
@@ -415,7 +418,7 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text style={{ ...styles.label, marginBottom: 0 }}>{basics.label}</Text>
                     <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={{ fontSize: 8, color: '#64748b', fontWeight: 'bold' }}>{basics.email} | {basics.phone}</Text>
+                        <Text style={{ fontSize: 8, color: '#64748b', fontWeight: 700 }}>{basics.email} | {basics.phone}</Text>
                         <Text style={{ fontSize: 8, color: '#94a3b8' }}>{typeof basics.location === 'string' ? basics.location : basics.location.city}</Text>
                     </View>
                 </View>
@@ -431,26 +434,28 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
                         </View>
                     )}
 
-                    <View style={{ marginBottom: 20 }}>
-                        <SectionTitle title="Experience" />
-                        {work.map((job, i) => (
-                            <View key={i} style={{ marginBottom: 15 }}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
-                                    <Text style={{ fontSize: 11, fontWeight: 'bold' }}>{job.position}</Text>
-                                    <Text style={styles.dateRange}>{job.startDate} – {job.endDate}</Text>
+                    {isVisible('work') && work && work.length > 0 && (
+                        <View style={{ marginBottom: 20 }}>
+                            <SectionTitle title="Experience" />
+                            {work.map((job, i) => (
+                                <View key={i} style={{ marginBottom: 15 }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
+                                        <Text style={{ fontSize: 11, fontWeight: 700 }}>{job.position}</Text>
+                                        <Text style={styles.dateRange}>{job.startDate} – {job.endDate}</Text>
+                                    </View>
+                                    <Text style={{ fontSize: 9, color: accentColor, fontWeight: 700, marginBottom: 4 }}>{job.company}</Text>
+                                    <Text style={styles.description}>{job.description}</Text>
                                 </View>
-                                <Text style={{ fontSize: 9, color: accentColor, fontWeight: 'bold', marginBottom: 4 }}>{job.company}</Text>
-                                <Text style={styles.description}>{job.description}</Text>
-                            </View>
-                        ))}
-                    </View>
+                            ))}
+                        </View>
+                    )}
 
-                    {projects && projects.length > 0 && (
+                    {isVisible('projects') && projects && projects.length > 0 && (
                         <View style={{ marginBottom: 20 }}>
                             <SectionTitle title="Key Initiatives" />
                             {projects.map((p, i) => (
                                 <View key={i} style={{ marginBottom: 10 }}>
-                                    <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{p.name} — {p.role}</Text>
+                                    <Text style={{ fontSize: 10, fontWeight: 700 }}>{p.name} — {p.role}</Text>
                                     <Text style={styles.description}>{p.description}</Text>
                                 </View>
                             ))}
@@ -460,37 +465,41 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
 
                 {/* Sidebar Column */}
                 <View style={{ flex: 1, borderLeft: '1pt solid #f1f5f9', paddingLeft: 20 }}>
-                    <View style={{ marginBottom: 20 }}>
-                        <Text style={{ fontSize: 8, fontWeight: 'black', textTransform: 'uppercase', color: '#64748b', marginBottom: 10 }}>Core Expertise</Text>
-                        <View style={{ gap: 6 }}>
-                            {skills.map((s, i) => (
-                                <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ fontSize: 9, fontWeight: 'bold' }}>{s.name}</Text>
-                                    <View style={{ width: 40, height: 2, backgroundColor: '#f1f5f9' }}>
-                                        <View style={{ width: s.level === 'Expert' ? '100%' : '70%', height: '100%', backgroundColor: accentColor }} />
+                    {isVisible('skills') && (
+                        <View style={{ marginBottom: 20 }}>
+                            <Text style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#64748b', marginBottom: 10 }}>Core Expertise</Text>
+                            <View style={{ gap: 6 }}>
+                                {skills.map((s, i) => (
+                                    <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Text style={{ fontSize: 9, fontWeight: 700 }}>{s.name}</Text>
+                                        <View style={{ width: 40, height: 2, backgroundColor: '#f1f5f9' }}>
+                                            <View style={{ width: s.level === 'Expert' ? '100%' : '70%', height: '100%', backgroundColor: accentColor }} />
+                                        </View>
                                     </View>
+                                ))}
+                            </View>
+                        </View>
+                    )}
+
+                    {isVisible('education') && (
+                        <View style={{ marginBottom: 20 }}>
+                            <Text style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#64748b', marginBottom: 10 }}>Education</Text>
+                            {education.map((edu, i) => (
+                                <View key={i} style={{ marginBottom: 8 }}>
+                                    <Text style={{ fontSize: 9, fontWeight: 700 }}>{edu.institution}</Text>
+                                    <Text style={{ fontSize: 7, color: '#64748b' }}>{edu.area}</Text>
+                                    <Text style={{ fontSize: 7, color: accentColor }}>{edu.endDate}</Text>
                                 </View>
                             ))}
                         </View>
-                    </View>
+                    )}
 
-                    <View style={{ marginBottom: 20 }}>
-                        <Text style={{ fontSize: 8, fontWeight: 'black', textTransform: 'uppercase', color: '#64748b', marginBottom: 10 }}>Education</Text>
-                        {education.map((edu, i) => (
-                            <View key={i} style={{ marginBottom: 8 }}>
-                                <Text style={{ fontSize: 9, fontWeight: 'bold' }}>{edu.institution}</Text>
-                                <Text style={{ fontSize: 7, color: '#64748b' }}>{edu.area}</Text>
-                                <Text style={{ fontSize: 7, color: accentColor }}>{edu.endDate}</Text>
-                            </View>
-                        ))}
-                    </View>
-
-                    {certifications && certifications.length > 0 && (
+                    {isVisible('certifications') && certifications && certifications.length > 0 && (
                         <View style={{ marginBottom: 20 }}>
-                            <Text style={{ fontSize: 8, fontWeight: 'black', textTransform: 'uppercase', color: '#64748b', marginBottom: 10 }}>Certifications</Text>
+                            <Text style={{ fontSize: 8, fontWeight: 900, textTransform: 'uppercase', color: '#64748b', marginBottom: 10 }}>Certifications</Text>
                             {certifications.map((c, i) => (
                                 <View key={i} style={{ marginBottom: 4 }}>
-                                    <Text style={{ fontSize: 8, fontWeight: 'bold' }}>{c.name}</Text>
+                                    <Text style={{ fontSize: 8, fontWeight: 700 }}>{c.name}</Text>
                                     <Text style={{ fontSize: 7, color: '#94a3b8' }}>{c.issuer}</Text>
                                 </View>
                             ))}
@@ -504,19 +513,19 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
     const MinimalLayout = () => (
         <Page size="A4" style={{ ...styles.page, flexDirection: 'column', padding: 50 }}>
             <View style={{ marginBottom: 40, alignItems: 'center' }}>
-                <Text style={{ fontSize: 28, fontWeight: 'bold', letterSpacing: 2, marginBottom: 5 }}>{basics.name}</Text>
+                <Text style={{ fontSize: 28, fontWeight: 700, letterSpacing: 2, marginBottom: 5 }}>{basics.name}</Text>
                 <Text style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase', letterSpacing: 4 }}>{basics.label}</Text>
                 <View style={{ height: 1, width: 100, backgroundColor: '#000', marginTop: 15 }} />
             </View>
 
             <View style={{ marginBottom: 25 }}>
-                {work.map((job, i) => (
+                {isVisible('work') && work.map((job, i) => (
                     <View key={i} style={{ marginBottom: 15 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                            <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{job.company}</Text>
+                            <Text style={{ fontSize: 10, fontWeight: 700 }}>{job.company}</Text>
                             <Text style={{ fontSize: 8, color: '#94a3b8' }}>{job.startDate} — {job.endDate}</Text>
                         </View>
-                        <Text style={{ fontSize: 9, fontStyle: 'italic', marginBottom: 4 }}>{job.position}</Text>
+                        <Text style={{ fontSize: 9, marginBottom: 4 }}>{job.position}</Text>
                         <Text style={{ ...styles.description, fontSize: 9 }}>{job.description}</Text>
                     </View>
                 ))}
@@ -525,17 +534,25 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
             <View style={{ borderTop: '0.5pt solid #e2e8f0', paddingTop: 20 }}>
                 <View style={{ flexDirection: 'row', gap: 40 }}>
                     <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: 7, fontWeight: 'bold', textTransform: 'uppercase', marginBottom: 10 }}>Education</Text>
-                        {education.map((edu, i) => (
-                            <View key={i} style={{ marginBottom: 8 }}>
-                                <Text style={{ fontSize: 8, fontWeight: 'bold' }}>{edu.studyType} in {edu.area}</Text>
-                                <Text style={{ fontSize: 7, color: '#64748b' }}>{edu.institution}</Text>
-                            </View>
-                        ))}
+                        {isVisible('education') && (
+                            <>
+                                <Text style={{ fontSize: 7, fontWeight: 700, textTransform: 'uppercase', marginBottom: 10 }}>Education</Text>
+                                {education.map((edu, i) => (
+                                    <View key={i} style={{ marginBottom: 8 }}>
+                                        <Text style={{ fontSize: 8, fontWeight: 700 }}>{edu.studyType} in {edu.area}</Text>
+                                        <Text style={{ fontSize: 7, color: '#64748b' }}>{edu.institution}</Text>
+                                    </View>
+                                ))}
+                            </>
+                        )}
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: 7, fontWeight: 'bold', textTransform: 'uppercase', marginBottom: 10 }}>Skills</Text>
-                        <Text style={{ fontSize: 8, lineHeight: 1.6 }}>{skills.map(s => s.name).join('  •  ')}</Text>
+                        {isVisible('skills') && (
+                            <>
+                                <Text style={{ fontSize: 7, fontWeight: 700, textTransform: 'uppercase', marginBottom: 10 }}>Skills</Text>
+                                <Text style={{ fontSize: 8, lineHeight: 1.6 }}>{skills.map(s => s.name).join('  •  ')}</Text>
+                            </>
+                        )}
                     </View>
                 </View>
             </View>
@@ -560,41 +577,47 @@ export const ResumePDF = ({ resume }: { resume: Resume }) => {
                 </View>
             </View>
 
-            <View style={{ marginBottom: 20 }}>
-                <SectionTitle title="Work Experience" />
-                {work.map((job, i) => (
-                    <View key={i} style={{ marginBottom: 15 }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
-                            <Text style={{ fontSize: 11, fontWeight: 'bold' }}>{job.position}</Text>
-                            <Text style={styles.dateRange}>{job.startDate} – {job.endDate}</Text>
+            {isVisible('work') && (
+                <View style={{ marginBottom: 20 }}>
+                    <SectionTitle title="Work Experience" />
+                    {work.map((job, i) => (
+                        <View key={i} style={{ marginBottom: 15 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
+                                <Text style={{ fontSize: 11, fontWeight: 700 }}>{job.position}</Text>
+                                <Text style={styles.dateRange}>{job.startDate} – {job.endDate}</Text>
+                            </View>
+                            <Text style={{ fontSize: 10, color: accentColor, fontWeight: 700, marginBottom: 4 }}>{job.company}</Text>
+                            <Text style={styles.description}>{job.description}</Text>
                         </View>
-                        <Text style={{ fontSize: 10, color: accentColor, fontWeight: 'bold', marginBottom: 4 }}>{job.company}</Text>
-                        <Text style={styles.description}>{job.description}</Text>
-                    </View>
-                ))}
-            </View>
-
-            <View style={{ marginBottom: 20 }}>
-                <SectionTitle title="Education" />
-                {education.map((edu, i) => (
-                    <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                        <View>
-                            <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{edu.institution}</Text>
-                            <Text style={{ fontSize: 9, color: '#64748b' }}>{edu.studyType} in {edu.area}</Text>
-                        </View>
-                        <Text style={styles.dateRange}>{edu.endDate}</Text>
-                    </View>
-                ))}
-            </View>
-
-            <View>
-                <SectionTitle title="Skills & Expertise" />
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                    {skills.map((s, i) => (
-                        <Text key={i} style={{ fontSize: 8, backgroundColor: '#f8fafc', padding: '3 8', borderRadius: 4, color: '#334155', border: '1pt solid #e2e8f0' }}>{s.name}</Text>
                     ))}
                 </View>
-            </View>
+            )}
+
+            {isVisible('education') && (
+                <View style={{ marginBottom: 20 }}>
+                    <SectionTitle title="Education" />
+                    {education.map((edu, i) => (
+                        <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                            <View>
+                                <Text style={{ fontSize: 10, fontWeight: 700 }}>{edu.institution}</Text>
+                                <Text style={{ fontSize: 9, color: '#64748b' }}>{edu.studyType} in {edu.area}</Text>
+                            </View>
+                            <Text style={styles.dateRange}>{edu.endDate}</Text>
+                        </View>
+                    ))}
+                </View>
+            )}
+
+            {isVisible('skills') && (
+                <View>
+                    <SectionTitle title="Skills & Expertise" />
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                        {skills.map((s, i) => (
+                            <Text key={i} style={{ fontSize: 8, backgroundColor: '#f8fafc', padding: '3 8', borderRadius: 4, color: '#334155', border: '1pt solid #e2e8f0' }}>{s.name}</Text>
+                        ))}
+                    </View>
+                </View>
+            )}
         </Page>
     );
 

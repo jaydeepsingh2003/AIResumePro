@@ -34,13 +34,13 @@ export default function Home() {
                   whileInView={{ opacity: 1 }}
                   className="text-[10px] sm:text-[10px] font-black text-neon-purple uppercase tracking-[0.4em] sm:tracking-[0.5em] mb-4"
                 >
-                  Neural Blueprints
+                  Professional Templates
                 </motion.div>
-                <h2 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white mb-6 tracking-tighter uppercase leading-tight sm:leading-none">SURPASS THE <span className="text-neon-purple">STANDARD.</span></h2>
-                <p className="text-lg sm:text-xl text-slate-500 font-light max-w-xl">Engineered for high-frequency hiring environments. Our blueprints are more than layouts—they are conversion machines.</p>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-4 tracking-tighter uppercase leading-tight">Build a <span className="text-neon-purple">Better Resume.</span></h2>
+                <p className="text-base sm:text-lg text-slate-500 font-light max-w-xl">Designed to help you stand out and get hired faster.</p>
               </div>
               <Link href="/templates" className="w-full sm:w-auto">
-                <Button className="w-full sm:w-auto h-14 sm:h-16 px-10 rounded-xl sm:rounded-2xl glass border-white/10 text-white font-black hover:bg-white/5 transition-all text-xs sm:text-sm uppercase tracking-widest">EXPOSE ALL BLUEPRINTS</Button>
+                <Button className="w-full sm:w-auto h-11 px-6 rounded-xl glass border-white/10 text-white font-bold hover:bg-white/5 transition-all text-xs uppercase tracking-wider">View All Templates</Button>
               </Link>
             </div>
 
@@ -48,26 +48,26 @@ export default function Home() {
               {[
                 {
                   id: 'sidebar',
-                  name: "Titanium Pro",
-                  tag: "High Conversion",
+                  name: "Modern Professional",
+                  tag: "Most Popular",
                   color: "border-neon-cyan/20"
                 },
                 {
                   id: 'single',
-                  name: "ATS Ghost",
-                  tag: "Infiltration Optimized",
+                  name: "ATS Friendly",
+                  tag: "Simple & Clean",
                   color: "border-white/10"
                 },
                 {
                   id: 'double',
-                  name: "Quantum Flow",
-                  tag: "Creative Intelligence",
+                  name: "Creative Studio",
+                  tag: "For Designers",
                   color: "border-neon-purple/20"
                 },
                 {
                   id: 'minimal',
-                  name: "Void Minimal",
-                  tag: "Pure Signal",
+                  name: "Minimalist",
+                  tag: "Clean Layout",
                   color: "border-cyber-pink/20"
                 }
               ].map((item, idx) => (
@@ -91,7 +91,7 @@ export default function Home() {
 
                     <div className="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-6 sm:p-8 text-center text-white backdrop-blur-md">
                       <Link href={`/builder/new?layout=${item.id}`} className="w-full">
-                        <Button className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-white text-slate-950 hover:bg-neon-cyan hover:text-white font-black transition-all text-xs uppercase">INITIALIZE ADAPTATION</Button>
+                        <Button className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-white text-slate-950 hover:bg-neon-cyan hover:text-white font-black transition-all text-xs uppercase">Use Template</Button>
                       </Link>
                     </div>
                   </div>
@@ -119,13 +119,13 @@ export default function Home() {
               <div className="absolute bottom-0 left-0 w-[400px] sm:w-[800px] h-[400px] sm:h-[800px] bg-neon-purple/10 rounded-full blur-[80px] sm:blur-[120px] -ml-32 sm:-ml-64 -mb-32 sm:-mb-64" />
 
               <div className="relative z-10">
-                <h2 className="text-4xl sm:text-6xl lg:text-9xl font-black text-white mb-6 sm:mb-10 tracking-tighter leading-[1] sm:leading-[0.8] uppercase">YOUR FUTURE <br /> <span className="text-gradient-futuristic">IS CALCULATED.</span></h2>
-                <p className="text-base sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 sm:mb-16 font-light leading-relaxed tracking-wide">Join 250,000+ top-tier candidates who have leveraged our neural network to secure positions at the world's most innovative organizations.</p>
+                <h2 className="text-3xl sm:text-4xl lg:text-6xl font-black text-white mb-4 sm:mb-6 tracking-tighter leading-tight uppercase">Your Future <br /> <span className="text-gradient-futuristic">Starts Here.</span></h2>
+                <p className="text-sm sm:text-base text-slate-400 max-w-xl mx-auto mb-8 sm:mb-10 font-light leading-relaxed">Join 250,000+ job seekers who found their dream jobs using our platform.</p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10">
                   <Link href="/register" className="w-full sm:w-auto">
                     <Button size="lg" className="w-full sm:w-auto bg-white hover:bg-neon-cyan text-black h-16 sm:h-20 px-10 sm:px-16 text-xl sm:text-2xl font-black rounded-full transition-all hover:scale-105 shadow-[0_0_50px_rgba(255,255,255,0.2)]">
-                      INITIALIZE PROTOCOL
+                      Get Started Now
                     </Button>
                   </Link>
                 </div>
@@ -155,25 +155,25 @@ export default function Home() {
 
             <div className="grid grid-cols-2 md:grid-cols-3 col-span-1 md:col-span-3 gap-16">
               <div>
-                <h4 className="font-black text-white mb-10 uppercase text-[10px] tracking-[0.4em]">Intelligence</h4>
+                <h4 className="font-black text-white mb-10 uppercase text-[10px] tracking-[0.4em]">Features</h4>
                 <ul className="space-y-6 text-slate-500 font-bold text-xs uppercase tracking-widest">
-                  <li><Link href="/dashboard/builder" className="hover:text-neon-cyan transition">Neural Builder</Link></li>
-                  <li><Link href="/dashboard/ats-score" className="hover:text-neon-cyan transition">ATS Analytics</Link></li>
-                  <li><Link href="/dashboard/job-optimizer" className="hover:text-neon-cyan transition">Optimizer</Link></li>
+                  <li><Link href="/dashboard/builder" className="hover:text-neon-cyan transition">Resume Builder</Link></li>
+                  <li><Link href="/dashboard/ats-score" className="hover:text-neon-cyan transition">ATS Score</Link></li>
+                  <li><Link href="/dashboard/job-optimizer" className="hover:text-neon-cyan transition">Job Match</Link></li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-black text-white mb-10 uppercase text-[10px] tracking-[0.4em]">Resources</h4>
                 <ul className="space-y-6 text-slate-500 font-bold text-xs uppercase tracking-widest">
-                  <li><Link href="/templates" className="hover:text-neon-cyan transition">Blueprints</Link></li>
-                  <li><Link href="/#features" className="hover:text-neon-cyan transition">Neural Components</Link></li>
+                  <li><Link href="/templates" className="hover:text-neon-cyan transition">Templates</Link></li>
+                  <li><Link href="/#features" className="hover:text-neon-cyan transition">All Features</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-black text-white mb-10 uppercase text-[10px] tracking-[0.4em]">Platform</h4>
+                <h4 className="font-black text-white mb-10 uppercase text-[10px] tracking-[0.4em]">Account</h4>
                 <ul className="space-y-6 text-slate-500 font-bold text-xs uppercase tracking-widest">
-                  <li><Link href="/register" className="hover:text-neon-cyan transition">Access</Link></li>
-                  <li><Link href="/login" className="hover:text-neon-cyan transition">Terminal</Link></li>
+                  <li><Link href="/register" className="hover:text-neon-cyan transition">Register</Link></li>
+                  <li><Link href="/login" className="hover:text-neon-cyan transition">Login</Link></li>
                 </ul>
               </div>
             </div>
@@ -181,11 +181,11 @@ export default function Home() {
 
           <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="text-[10px] text-slate-600 font-black uppercase tracking-[0.3em]">
-              © 2026 AI Resume Pro // Neural Career Network
+              © 2026 AI Resume Pro // Resume Builder Platform
             </div>
             <div className="flex items-center gap-4 bg-white/5 px-6 py-3 rounded-full border border-white/10">
               <div className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse shadow-[0_0_10px_rgba(0,242,255,0.8)]" />
-              <span className="text-[9px] font-black text-neon-cyan uppercase tracking-widest">All Core Systems Operational</span>
+              <span className="text-[9px] font-black text-neon-cyan uppercase tracking-widest">Systems Online</span>
             </div>
           </div>
         </div>

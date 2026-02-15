@@ -1,10 +1,10 @@
-import { TemplateConfig } from '@/types/template';
+import { ResumeDesignConfig } from '@/types/template-design';
 
 /**
  * Template Configurations for all 50+ templates
  * Each template has its own unique styling configuration
  */
-export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
+export const TEMPLATE_CONFIGS: Record<string, ResumeDesignConfig> = {
     // ==================== CORPORATE TEMPLATES (10) ====================
 
     'corp-01': {
@@ -649,7 +649,7 @@ export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
  * Get template configuration by ID
  * Falls back to corp-01 if template not found
  */
-export function getTemplateConfig(templateId: string): TemplateConfig {
+export function getResumeDesignConfig(templateId: string): ResumeDesignConfig {
     return TEMPLATE_CONFIGS[templateId] || TEMPLATE_CONFIGS['corp-01'];
 }
 
@@ -659,3 +659,4 @@ export function getTemplateConfig(templateId: string): TemplateConfig {
 export function getAvailableTemplateIds(): string[] {
     return Object.keys(TEMPLATE_CONFIGS);
 }
+

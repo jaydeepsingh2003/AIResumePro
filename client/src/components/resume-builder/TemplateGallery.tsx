@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { RESUME_TEMPLATES, ResumeTemplate } from '@/data/templates';
+﻿import React, { useState } from 'react';
+import { RESUME_TEMPLATES } from '@/data/templates';
+import { TemplateConfig } from '@/types/template';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     X,
@@ -20,7 +21,7 @@ import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
 
 interface TemplateGalleryProps {
-    onSelect: (template: ResumeTemplate) => void;
+    onSelect: (template: TemplateConfig) => void;
     onClose: () => void;
     currentTemplateId?: string;
 }
@@ -144,7 +145,7 @@ export function TemplateGallery({ onSelect, onClose, currentTemplateId }: Templa
     const filteredTemplates = RESUME_TEMPLATES.filter(t => {
         const matchesCategory = activeCategory === 'all' || t.category === activeCategory;
         const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            t.description.toLowerCase().includes(searchQuery.toLowerCase());
+            t.description?.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
     });
 
@@ -239,7 +240,7 @@ export function TemplateGallery({ onSelect, onClose, currentTemplateId }: Templa
                                                 {template.category}
                                             </Badge>
                                         </div>
-                                        <p className="text-xs text-slate-500 line-clamp-1 font-bold">{template.description}</p>
+                                        <p className="text-xs text-slate-500 line-clamp-1 font-bold">{template.description || 'No description'}</p>
                                     </div>
                                 </motion.div>
                             ))}

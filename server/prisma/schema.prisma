@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -33,9 +33,31 @@ model Resume {
   isPublic       Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  
+  templateId     String?
+  template       Template? @relation(fields: [templateId], references: [id])
 
   user       User       @relation(fields: [userId], references: [id])
   analyses   Analysis[]
+}
+
+model Template {
+  id          String   @id
+  name        String
+  description String?
+  category    String   // corporate, tech, creative, etc.
+  isPremium   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  thumbnailUrl String?
+  
+  layout      Json     // Layout configuration
+  styles      Json     // Global style configuration
+  sections    Json     // Section-specific overrides
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  resumes     Resume[]
 }
 
 model JobApplication {

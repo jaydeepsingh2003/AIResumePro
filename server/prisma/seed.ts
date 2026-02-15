@@ -1,6 +1,8 @@
-import { TemplateConfig } from "@/types/template";
+import { PrismaClient } from '@prisma/client';
 
-export const templates: TemplateConfig[] = [
+const prisma = new PrismaClient();
+
+const templates = [
     {
         id: 'sidebar',
         name: 'Titanium Pro',
@@ -175,15 +177,42 @@ export const templates: TemplateConfig[] = [
     }
 ];
 
-export const RESUME_TEMPLATES = templates;
+async function main() {
+    console.log('Start seeding templates...');
+    for (const template of templates) {
+        await prisma.template.upsert({
+            where: { id: template.id },
+            update: {
+                name: template.name,
+                description: template.description,
+                category: template.category,
+                isPremium: template.isPremium,
+                isActive: template.isActive,
+                layout: template.layout as any,
+                styles: template.styles as any,
+                sections: template.sections as any
+            },
+            create: {
+                id: template.id,
+                name: template.name,
+                description: template.description,
+                category: template.category,
+                isPremium: template.isPremium,
+                isActive: template.isActive,
+                layout: template.layout as any,
+                styles: template.styles as any,
+                sections: template.sections as any
+            }
+        });
+    }
+    console.log('Seeding templates finished.');
+}
 
-export type TemplateCategory = 'corporate' | 'tech' | 'creative' | 'entry' | 'academic' | 'international';
-
-export const CATEGORY_LABELS: Record<TemplateCategory, string> = {
-    corporate: 'Corporate',
-    tech: 'Tech',
-    creative: 'Creative',
-    entry: 'Entry Level',
-    academic: 'Academic',
-    international: 'International'
-};
+main()
+    .catch((e) => {
+        console.error(e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });

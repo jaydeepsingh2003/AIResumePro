@@ -1,17 +1,30 @@
 'use client';
 
-import { SAMPLE_RESUME_DATA } from '@/data/sample-resume';
-import { getTemplateConfig } from '@/components/resume-templates/configs';
-import ClassicProfessional from '@/components/resume-templates/corporate/ClassicProfessional';
-import { useState } from 'react';
+import demoResume from '@/data/demo_resume.json';
+import { getResumeDesignConfig } from '@/components/resume-templates/configs';
+import { getTemplateComponent } from '@/components/resume-templates/registry';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Resume } from '@/types/resume';
 
 /**
  * Template Testing Page
  * Demonstrates ALL resume fields rendering in templates
  */
 export default function TemplateTestPage() {
+    const searchParams = useSearchParams();
     const [selectedTemplate, setSelectedTemplate] = useState('corp-01');
-    const config = getTemplateConfig(selectedTemplate);
+
+    useEffect(() => {
+        const templateId = searchParams.get('templateId');
+        if (templateId) {
+            setSelectedTemplate(templateId);
+        }
+    }, [searchParams]);
+
+    const config = getResumeDesignConfig(selectedTemplate);
+    const resume = demoResume as unknown as Resume;
+    const TemplateComponent = getTemplateComponent(selectedTemplate);
 
     return (
         <div className="min-h-screen bg-slate-950 py-12 px-4">
@@ -106,9 +119,9 @@ export default function TemplateTestPage() {
                 </div>
 
                 {/* Template Preview */}
-                <div className="bg-white rounded-lg shadow-2xl p-8 mx-auto" style={{ maxWidth: '900px' }}>
-                    <ClassicProfessional
-                        resume={SAMPLE_RESUME_DATA}
+                <div id="resume-preview-container" className="bg-white rounded-lg shadow-2xl p-8 mx-auto" style={{ maxWidth: '900px' }}>
+                    <TemplateComponent
+                        resume={resume}
                         config={config}
                         preview={true}
                     />

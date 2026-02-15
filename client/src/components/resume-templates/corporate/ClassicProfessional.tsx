@@ -1,7 +1,14 @@
 'use client';
 
 import { BaseTemplate } from '../BaseTemplateExtended';
-import { TemplateProps } from '@/types/template';
+import { Resume } from '@/types/resume';
+import { ResumeDesignConfig } from '@/types/template-design';
+
+interface TemplateProps {
+    resume: Resume;
+    config: ResumeDesignConfig;
+    preview?: boolean;
+}
 
 /**
  * Classic Professional Template (corp-01)
@@ -77,3 +84,4 @@ export default function ClassicProfessional({ resume, config, preview }: Templat
         </div>
     );
 }
+

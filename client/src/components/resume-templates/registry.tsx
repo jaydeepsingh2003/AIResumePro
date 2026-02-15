@@ -1,8 +1,19 @@
 'use client';
 
 import { ComponentType } from 'react';
-import { TemplateProps } from '@/types/template';
+import { Resume } from '@/types/resume';
+import { ResumeDesignConfig } from '@/types/template-design';
 import ClassicProfessional from './corporate/ClassicProfessional';
+import { ModernTemplate } from './ModernTemplate';
+import { MinimalTemplate } from './MinimalTemplate';
+import { DoubleColumnTemplate } from './DoubleColumnTemplate';
+import { ProfessionalTemplate } from './ProfessionalTemplate';
+
+export interface TemplateProps {
+    resume: Resume;
+    config: ResumeDesignConfig;
+    preview?: boolean;
+}
 
 /**
  * Template Registry
@@ -13,7 +24,27 @@ import ClassicProfessional from './corporate/ClassicProfessional';
 // Universal Template Component
 // Since all templates use BaseTemplate with different configs,
 // we can use a single component for all templates
-const UniversalTemplate = ClassicProfessional;
+
+// Universal Template Component
+// Dispatches to the correct layout component based on config.layout.type
+const UniversalTemplate = (props: TemplateProps) => {
+    const { config } = props;
+    const layoutType = config?.layout?.type || 'single';
+
+    switch (layoutType) {
+        case 'sidebar':
+            return <ModernTemplate resume={ props.resume } />;
+        case 'double':
+            return <DoubleColumnTemplate resume={ props.resume } />;
+        case 'minimal':
+            return <MinimalTemplate resume={ props.resume } />;
+        case 'single':
+        default:
+            // Use ClassicProfessional for corporate/standard single column
+            // It respects the config object for fonts/colors
+            return <ClassicProfessional { ...props } />;
+    }
+};
 
 /**
  * Template Component Registry
@@ -104,3 +135,4 @@ export function hasTemplateComponent(templateId: string): boolean {
 export function getRegisteredTemplateIds(): string[] {
     return Object.keys(TEMPLATE_REGISTRY);
 }
+

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -36,8 +36,10 @@ const DashboardLayout = ({
             {/* Mobile Nav Bar */}
             <div className="md:hidden flex items-center justify-between h-20 px-6 bg-black/60 border-b border-white/5 fixed top-0 w-full z-40 backdrop-blur-xl">
                 <Link href="/dashboard" className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-neon-cyan" />
-                    <span className="font-black text-lg tracking-tighter uppercase italic">AI Pro</span>
+                    <div className="bg-neon-cyan/10 p-2 rounded-lg border border-neon-cyan/20">
+                        <Cpu className="w-4 h-4 text-neon-cyan" />
+                    </div>
+                    <span className="font-black text-lg tracking-tighter uppercase italic leading-none text-white">AI <span className="text-neon-cyan">RESUME</span></span>
                 </Link>
                 <Button
                     variant="ghost"
@@ -50,7 +52,7 @@ const DashboardLayout = ({
             </div>
 
             {/* Desktop Sidebar */}
-            <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-[80] bg-black/40 text-slate-400 w-72 backdrop-blur-3xl">
+            <div className="hidden h-full md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-[80] bg-black/40 text-slate-400 w-64 backdrop-blur-3xl">
                 <Sidebar />
             </div>
 
@@ -88,7 +90,7 @@ const DashboardLayout = ({
                 )}
             </AnimatePresence>
 
-            <main className="md:pl-72 pt-20 md:pt-0 min-h-screen">
+            <main className="md:pl-64 pt-20 md:pt-0 min-h-screen relative">
                 {children}
             </main>
         </div>

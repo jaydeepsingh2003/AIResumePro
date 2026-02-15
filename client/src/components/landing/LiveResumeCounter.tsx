@@ -20,8 +20,11 @@ export function LiveResumeCounter() {
 
             const resumes = await fetchResumes();
             setResumeCount(resumes.length);
-        } catch (err) {
-            console.error('Failed to fetch resume count:', err);
+        } catch (err: any) {
+            // Silently handle unauthorized errors - expected when not logged in
+            if (err?.message !== 'Unauthorized') {
+                console.error('Failed to fetch resume count:', err);
+            }
             setResumeCount(0);
         } finally {
             setIsLoading(false);

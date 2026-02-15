@@ -1,0 +1,228 @@
+{
+    "id": "demo_resume_001",
+    "title": "Professional Demo Resume",
+    "style": {
+        "theme": "modern",
+        "font": "inter",
+        "layout": "sidebar",
+        "color": "#4F46E5",
+        "visibleSections": {
+            "basics": true,
+            "work": true,
+            "education": true,
+            "skills": true,
+            "projects": true,
+            "certifications": true,
+            "languages": true,
+            "awards": true,
+            "publications": true,
+            "volunteer": true,
+            "leadership": true,
+            "interests": true,
+            "affiliations": true,
+            "patents": true,
+            "conferences": true,
+            "references": true
+        }
+    },
+    "content": {
+        "basics": {
+            "name": "Alex Sterling",
+            "label": "Senior Full Stack Engineer",
+            "email": "alex.sterling@example.com",
+            "phone": "+1 (555) 123-4567",
+            "location": {
+                "city": "San Francisco",
+                "countryCode": "CA",
+                "region": "California"
+            },
+            "url": "https://alexsterling.dev",
+            "linkedinUrl": "https://linkedin.com/in/alexsterling",
+            "githubUrl": "https://github.com/alexsterling",
+            "summary": "Innovative Senior Full Stack Engineer with 7+ years of experience in building scalable web applications. Proven track record of leading cross-functional teams, optimizing system performance by 40%, and implementing cloud-native solutions. Expert in React, Node.js, and AWS architecture with a focus on delivering high-quality user experiences.",
+            "image": "",
+            "showImage": true,
+            "objective": "To leverage my expertise in full-stack development and cloud architecture to drive technical innovation and deliver impactful solutions for a forward-thinking technology company."
+        },
+        "work": [
+            {
+                "company": "TechNova Solutions",
+                "position": "Senior Software Engineer",
+                "location": "San Francisco, CA",
+                "startDate": "2021-03",
+                "endDate": "",
+                "current": true,
+                "description": "Lead the development of the core SaaS platform serving 50k+ enterprise users. Architected microservices using Node.js and Kubernetes, reducing deployment time by 60%.",
+                "highlights": [
+                    "Mentored 4 junior developers.",
+                    "Implemented CI/CD pipelines.",
+                    "Reduced latency by 35%."
+                ],
+                "metrics": "Increased platform uptime to 99.99% and reduced infrastructure costs by 20%."
+            },
+            {
+                "company": "Creative Pulse Agency",
+                "position": "Full Stack Developer",
+                "location": "New York, NY",
+                "startDate": "2018-06",
+                "endDate": "2021-02",
+                "current": false,
+                "description": "Developed custom e-commerce solutions for high-profile clients. Integrated payment gateways and headless CMS architectures.",
+                "highlights": [
+                    "Developed 15+ custom Shopify apps.",
+                    "Optimized SEO for client sites."
+                ],
+                "metrics": "Boosted client conversion rates by an average of 25% through UX optimizations."
+            }
+        ],
+        "education": [
+            {
+                "institution": "University of California, Berkeley",
+                "area": "Computer Science",
+                "studyType": "Bachelor of Science",
+                "startDate": "2014-08",
+                "endDate": "2018-05",
+                "score": "3.8/4.0",
+                "coursework": [
+                    "Algorithms",
+                    "Database Systems",
+                    "AI"
+                ]
+            }
+        ],
+        "skills": [
+            {
+                "name": "React & Next.js",
+                "level": "Expert"
+            },
+            {
+                "name": "Node.js & Express",
+                "level": "Expert"
+            },
+            {
+                "name": "TypeScript",
+                "level": "Advanced"
+            },
+            {
+                "name": "AWS & Cloud",
+                "level": "Advanced"
+            },
+            {
+                "name": "PostgreSQL",
+                "level": "Intermediate"
+            },
+            {
+                "name": "UI/UX Design",
+                "level": "Intermediate"
+            }
+        ],
+        "projects": [
+            {
+                "name": "NeuralTasks AI",
+                "description": "An AI-powered project management tool that predicts task duration and optimizes team workflows using machine learning.",
+                "role": "Lead Developer",
+                "url": "https://neuraltasks.demo",
+                "keywords": [
+                    "React",
+                    "Python",
+                    "TensorFlow"
+                ]
+            }
+        ],
+        "certifications": [
+            {
+                "name": "AWS Certified Solutions Architect",
+                "issuer": "Amazon Web Services",
+                "date": "2022-09"
+            },
+            {
+                "name": "Certified Kubernetes Administrator (CKA)",
+                "issuer": "CNCF",
+                "date": "2023-01"
+            }
+        ],
+        "awards": [
+            {
+                "title": "Employee of the Year",
+                "issuer": "TechNova Solutions",
+                "date": "2023",
+                "description": "Recognized for outstanding leadership and technical contributions."
+            }
+        ],
+        "publications": [
+            {
+                "title": "Optimizing Serverless Architectures",
+                "publisher": "TechWeekly Review",
+                "date": "2022-11",
+                "url": "https://techweekly.example/serverless",
+                "description": "A deep dive into cost-effective serverless patterns."
+            }
+        ],
+        "languages": [
+            {
+                "language": "English",
+                "fluency": "Native"
+            },
+            {
+                "language": "Spanish",
+                "fluency": "Intermediate"
+            }
+        ],
+        "volunteer": [
+            {
+                "organization": "Code for Good",
+                "role": "Volunteer Mentor",
+                "startDate": "2019",
+                "endDate": "Present",
+                "highlights": [
+                    "Teaching web development to underprivileged youth."
+                ]
+            }
+        ],
+        "leadership": [
+            {
+                "role": "Chapter Lead",
+                "organization": "Open Source Community",
+                "startDate": "2020",
+                "endDate": "Present",
+                "impact": "Organized monthly meetups and hackathons for 200+ members."
+            }
+        ],
+        "interests": [
+            {
+                "name": "Photography"
+            },
+            {
+                "name": "Hiking"
+            },
+            {
+                "name": "Chess"
+            }
+        ],
+        "affiliations": [
+            {
+                "organization": "IEEE Computer Society",
+                "role": "Member",
+                "startDate": "2018",
+                "endDate": "Present"
+            }
+        ],
+        "patents": [
+            {
+                "title": "System for Distributed State Management",
+                "number": "US-2023-123456",
+                "date": "2023-05"
+            }
+        ],
+        "conferences": [
+            {
+                "name": "React Global Summit",
+                "role": "Speaker",
+                "date": "2023-06",
+                "description": "Presented on 'Scalable State Patterns in React'."
+            }
+        ],
+        "references": [],
+        "showReferencesToggle": true
+    }
+}

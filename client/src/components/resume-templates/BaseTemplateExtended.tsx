@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 /**
  * BaseTemplate - Part 2: Additional Section Renderers
  * This file contains renderers for all remaining resume sections
@@ -11,7 +13,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render projects
      */
-    protected renderProjects(): JSX.Element | null {
+    protected renderProjects(): React.JSX.Element | null {
         if (!this.hasContent('projects')) return null;
 
         return (
@@ -112,7 +114,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render certifications
      */
-    protected renderCertifications(): JSX.Element | null {
+    protected renderCertifications(): React.JSX.Element | null {
         if (!this.hasContent('certifications')) return null;
 
         return (
@@ -186,7 +188,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render awards
      */
-    protected renderAwards(): JSX.Element | null {
+    protected renderAwards(): React.JSX.Element | null {
         if (!this.hasContent('awards')) return null;
 
         return (
@@ -252,7 +254,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render publications
      */
-    protected renderPublications(): JSX.Element | null {
+    protected renderPublications(): React.JSX.Element | null {
         if (!this.hasContent('publications')) return null;
 
         return (
@@ -316,7 +318,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render volunteer experience
      */
-    protected renderVolunteer(): JSX.Element | null {
+    protected renderVolunteer(): React.JSX.Element | null {
         if (!this.hasContent('volunteer')) return null;
 
         return (
@@ -386,7 +388,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render leadership
      */
-    protected renderLeadership(): JSX.Element | null {
+    protected renderLeadership(): React.JSX.Element | null {
         if (!this.hasContent('leadership')) return null;
 
         return (
@@ -464,7 +466,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render languages
      */
-    protected renderLanguages(): JSX.Element | null {
+    protected renderLanguages(): React.JSX.Element | null {
         if (!this.hasContent('languages')) return null;
 
         return (
@@ -514,7 +516,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render interests
      */
-    protected renderInterests(): JSX.Element | null {
+    protected renderInterests(): React.JSX.Element | null {
         if (!this.hasContent('interests')) return null;
 
         return (
@@ -565,7 +567,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render affiliations
      */
-    protected renderAffiliations(): JSX.Element | null {
+    protected renderAffiliations(): React.JSX.Element | null {
         if (!this.hasContent('affiliations')) return null;
 
         return (
@@ -622,7 +624,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render patents
      */
-    protected renderPatents(): JSX.Element | null {
+    protected renderPatents(): React.JSX.Element | null {
         if (!this.hasContent('patents')) return null;
 
         return (
@@ -690,7 +692,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render conferences
      */
-    protected renderConferences(): JSX.Element | null {
+    protected renderConferences(): React.JSX.Element | null {
         if (!this.hasContent('conferences')) return null;
 
         return (
@@ -756,7 +758,7 @@ export class BaseTemplateExtended extends BaseTemplateCore {
     /**
      * Render references
      */
-    protected renderReferences(): JSX.Element | null {
+    protected renderReferences(): React.JSX.Element | null {
         if (!this.hasContent('references')) return null;
         if (this.content.showReferencesToggle === false) return null;
 

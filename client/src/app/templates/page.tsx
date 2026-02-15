@@ -6,7 +6,6 @@ import { Search, Grid3x3, LayoutGrid, Sparkles, Zap, GraduationCap, Globe, Brief
 import { RESUME_TEMPLATES, TemplateCategory, CATEGORY_LABELS } from '@/data/templates';
 import { getAllTemplateIds } from '@/components/resume-templates/all-configs';
 import Link from 'next/link';
-import Image from 'next/image';
 
 /**
  * 50+ Resume Template Gallery
@@ -22,7 +21,7 @@ export default function TemplateGalleryPage() {
     return RESUME_TEMPLATES.filter(template => {
       const matchesCategory = selectedCategory === 'all' || template.category === selectedCategory;
       const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        template.description.toLowerCase().includes(searchQuery.toLowerCase());
+        (template.description || '').toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
   }, [selectedCategory, searchQuery]);
@@ -65,40 +64,40 @@ export default function TemplateGalleryPage() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-white/10 mb-6">
               <Sparkles className="w-4 h-4 text-neon-cyan" />
-              <span className="text-sm text-slate-300">50+ Professional Templates</span>
+              <span className="text-sm text-slate-300">50+ Resume Templates</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="text-gradient-futuristic">Resume Template</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tighter uppercase italic">
+              <span className="text-neon-cyan drop-shadow-[0_0_15px_rgba(0,242,255,0.4)]">Resume</span>
               <br />
-              <span className="text-white">Gallery</span>
+              <span className="text-white">Templates.</span>
             </h1>
 
-            <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-8">
-              Choose from our collection of professionally designed resume templates.
-              <br />
-              <span className="text-neon-cyan font-semibold">All templates support 100+ fields</span> across 16 sections.
+            <p className="text-slate-600 font-bold uppercase tracking-[0.2em] text-[10px] max-w-xl mx-auto leading-relaxed mb-10">
+              Choose from our collection of <br />
+              professionally designed resume templates.
             </p>
 
             {/* Stats */}
-            <div className="flex flex-wrap justify-center gap-8 mb-12">
+            <div className="flex flex-wrap justify-center gap-10 mb-12">
               <div className="text-center">
-                <div className="text-4xl font-bold text-neon-cyan">{getAllTemplateIds().length}</div>
-                <div className="text-sm text-slate-400">Templates</div>
+                <div className="text-3xl font-black text-neon-cyan tracking-tighter">{getAllTemplateIds().length}</div>
+                <div className="text-[8px] font-black text-slate-700 uppercase tracking-widest mt-1">Templates</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-bold text-neon-purple">16</div>
-                <div className="text-sm text-slate-400">Sections</div>
+                <div className="text-3xl font-black text-neon-purple tracking-tighter">16</div>
+                <div className="text-[8px] font-black text-slate-700 uppercase tracking-widest mt-1">Categories</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-bold text-neon-cyan">100+</div>
-                <div className="text-sm text-slate-400">Fields</div>
+                <div className="text-3xl font-black text-neon-cyan tracking-tighter">100+</div>
+                <div className="text-[8px] font-black text-slate-700 uppercase tracking-widest mt-1">Styles</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-bold text-neon-purple">100%</div>
-                <div className="text-sm text-slate-400">ATS Compatible</div>
+                <div className="text-3xl font-black text-neon-purple tracking-tighter">100%</div>
+                <div className="text-[8px] font-black text-slate-700 uppercase tracking-widest mt-1">ATS Friendly</div>
               </div>
             </div>
+
 
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto">
@@ -176,10 +175,10 @@ export default function TemplateGalleryPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* Templates Grid */}
-      <section className="py-16 px-4">
+      < section className="py-16 px-4" >
         <div className="max-w-7xl mx-auto">
           {/* Results Count */}
           <div className="mb-8">
@@ -222,27 +221,27 @@ export default function TemplateGalleryPage() {
             </div>
           )}
         </div>
-      </section>
+      </section >
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
+      < section className="py-20 px-4" >
         <div className="max-w-4xl mx-auto text-center glass rounded-2xl p-12 border border-white/10">
           <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to create your perfect resume?
+            Ready to build your resume?
           </h2>
           <p className="text-slate-400 mb-8">
-            All templates support every field you need. Start building now!
+            Our templates work with all resume sections.
           </p>
           <Link
             href="/dashboard"
             className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-neon-cyan to-neon-purple rounded-lg font-bold text-slate-950 hover:shadow-lg hover:shadow-neon-cyan/50 transition-all"
           >
             <Sparkles className="w-5 h-5" />
-            Start Building
+            Create Resume
           </Link>
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   );
 }
 
@@ -280,17 +279,27 @@ function TemplateCard({
     >
       {/* Thumbnail */}
       <div className={`
-        relative overflow-hidden bg-slate-900
+        relative overflow-hidden bg-slate-900 group
         ${viewMode === 'grid' ? 'aspect-[8.5/11] w-full' : 'w-48 h-64 flex-shrink-0'}
       `}>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-slate-700 text-sm">Preview Coming Soon</div>
+        <img
+          src={`/thumbnails/${template.id}.png`}
+          alt={template.name}
+          className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+            e.currentTarget.parentElement?.querySelector('.fallback-preview')?.classList.remove('hidden');
+          }}
+        />
+        {/* Fallback */}
+        <div className="fallback-preview hidden absolute inset-0 flex items-center justify-center bg-slate-800 text-center p-4">
+          <div className="text-slate-500 text-xs font-mono">PREVIEW UNAVAILABLE</div>
         </div>
 
         {/* Category Badge */}
         <div className={`
-          absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold
-          bg-gradient-to-r ${categoryColors[template.category]} backdrop-blur-sm border
+          absolute top-3 right-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
+          bg-gradient-to-r ${categoryColors[template.category]} backdrop-blur-md border border-white/10 z-10
         `}>
           {CATEGORY_LABELS[template.category]}
         </div>

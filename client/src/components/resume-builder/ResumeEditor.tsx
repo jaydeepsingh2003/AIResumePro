@@ -33,11 +33,20 @@ import {
     Milestone,
     Building,
     Target,
-    Trophy
+    Trophy,
+    Network,
+    Cpu,
+    Eye,
+    EyeOff,
+    Megaphone
 } from "lucide-react";
 import { useState } from "react";
 import { improveText } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
+
+import { templates as availableTemplates } from "@/data/templates";
+
+// ... (imports remain same)
 
 export function ResumeEditor({
     resume,
@@ -50,14 +59,22 @@ export function ResumeEditor({
     const [expandedSection, setExpandedSection] = useState<string>("basics");
     const [isTemplatePickerOpen, setIsTemplatePickerOpen] = useState(false);
 
-    const templates = [
-        { id: 'sidebar', name: 'Titanium Pro', description: 'Engineered for high-conversion leadership roles.', color: 'bg-slate-900 shadow-[0_0_20px_rgba(0,242,255,0.1)]' },
-        { id: 'double', name: 'Quantum Flow', description: 'Innovative 8-4 split for balanced creative focus.', color: 'bg-slate-800 border-t-8 border-neon-purple shadow-[0_0_20px_rgba(188,19,254,0.1)]' },
-        { id: 'minimal', name: 'Void Minimal', description: 'Ultra-clean design with high-fashion neural spacing.', color: 'bg-slate-950 border-l-4 border-white/20' },
-        { id: 'single', name: 'ATS Ghost', description: 'Traditional structure optimized for algorithmic infiltration.', color: 'bg-white/5 border-2 border-white/10' }
-    ];
+    const getTemplateColor = (id: string) => {
+        switch (id) {
+            case 'sidebar': return 'bg-slate-900 shadow-[0_0_20px_rgba(0,242,255,0.1)]';
+            case 'double': return 'bg-slate-800 border-t-8 border-neon-purple shadow-[0_0_20px_rgba(188,19,254,0.1)]';
+            case 'minimal': return 'bg-slate-950 border-l-4 border-white/20';
+            case 'single': return 'bg-white/5 border-2 border-white/10';
+            default: return 'bg-white/5 border border-white/10';
+        }
+    };
 
-    const handleTemplateChange = (templateId: 'sidebar' | 'single' | 'double' | 'minimal') => {
+    const templates = availableTemplates.map(t => ({
+        ...t,
+        color: getTemplateColor(t.id)
+    }));
+
+    const handleTemplateChange = (templateId: string) => {
         onUpdate({
             ...resume,
             style: {
@@ -101,7 +118,10 @@ export function ResumeEditor({
         });
     };
 
-    const handleImprove = async (field: 'summary' | 'experience' | 'objective' | 'project', index?: number) => {
+    const handleImprove = async (
+        field: 'summary' | 'experience' | 'objective' | 'project' | 'volunteer' | 'leadership' | 'awards' | 'publications' | 'conferences',
+        index?: number
+    ) => {
         let currentText = "";
         let id = field as string;
 
@@ -331,6 +351,24 @@ export function ResumeEditor({
         }
     };
 
+    const toggleVisibility = (section: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const currentVisibility = resume.style?.visibleSections || {};
+        // Default to true if undefined
+        const isVisible = currentVisibility[section] !== false;
+
+        onUpdate({
+            ...resume,
+            style: {
+                ...resume.style,
+                visibleSections: {
+                    ...currentVisibility,
+                    [section]: !isVisible
+                }
+            }
+        });
+    };
+
     const toggleSection = (section: string) => {
         setExpandedSection(expandedSection === section ? "" : section);
     };
@@ -339,9 +377,11 @@ export function ResumeEditor({
         const order = Array.from(resume.style?.sectionOrder || defaultOrder);
         const index = order.indexOf(id as any);
         const isActive = expandedSection === id;
+        const currentVisibility = resume.style?.visibleSections || {};
+        const isVisible = currentVisibility[id] !== false;
 
         return (
-            <div className={`group/header border-b border-white/5 relative transition-all duration-500 ${isActive ? 'bg-white/5' : 'bg-transparent'}`}>
+            <div className={`group/header border-b border-white/5 relative transition-all duration-500 ${isActive ? 'bg-white/5' : 'bg-transparent'} ${!isVisible ? 'opacity-50' : ''}`}>
                 <div className="flex items-center">
                     <button
                         onClick={() => toggleSection(id)}
@@ -361,9 +401,16 @@ export function ResumeEditor({
 
                     <div className="flex flex-col border-l border-white/5 opacity-0 group-hover/header:opacity-100 transition-opacity">
                         <button
+                            onClick={(e) => toggleVisibility(id, e)}
+                            className={`p-4 hover:bg-white/10 text-slate-500 ${isVisible ? 'hover:text-neon-cyan' : 'text-slate-700 hover:text-slate-500'}`}
+                            title={isVisible ? "Hide Section" : "Show Section"}
+                        >
+                            {isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                        </button>
+                        <button
                             disabled={index === 0}
                             onClick={(e) => handleMoveSection(index, 'up', e)}
-                            className="p-4 hover:bg-white/10 disabled:opacity-10 text-slate-500 hover:text-neon-cyan"
+                            className="p-4 hover:bg-white/10 disabled:opacity-10 text-slate-500 hover:text-neon-cyan border-t border-white/5"
                             title="Move Up"
                         >
                             <ChevronUp className="w-4 h-4" />
@@ -485,14 +532,9 @@ export function ResumeEditor({
                 </AnimatePresence>
             </div>
 
-            <div className="glass border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl backdrop-blur-3xl">
+            <div className="glass rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-3xl">
                 {/* Basics Section */}
-                <SectionHeader
-                    id="basics"
-                    title="Basic Information"
-                    icon={User}
-                    desc="Name, title, and contact details"
-                />
+                <SectionHeader id="basics" title="Identity" icon={User} desc="Core persona and access details" />
                 <AnimatePresence>
                     {expandedSection === "basics" && (
                         <motion.div
@@ -501,69 +543,59 @@ export function ResumeEditor({
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="p-8 grid grid-cols-2 gap-8 bg-transparent">
+                            <div className="p-6 grid grid-cols-2 gap-6 bg-transparent">
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Full Name</Label>
                                     <Input
-                                        className="rounded-xl border-white/10 bg-white/5 h-12 focus:border-neon-cyan/50 h-11 focus:ring-neon-cyan font-medium text-white"
+                                        className="rounded-xl border-white/10 bg-white/5 h-11 focus:border-neon-cyan/50 focus:ring-neon-cyan font-medium text-white"
                                         value={resume.content.basics.name}
                                         onChange={(e) => handleBasicChange('name', e.target.value)}
+                                        placeholder="Identity Label"
                                     />
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Job Title</Label>
                                     <Input
-                                        className="rounded-xl border-white/10 bg-white/5 h-12 focus:border-neon-cyan/50 h-11 focus:ring-neon-cyan font-medium text-white"
+                                        className="rounded-xl border-white/10 bg-white/5 h-11 focus:border-neon-cyan/50 focus:ring-neon-cyan font-medium text-white"
                                         value={resume.content.basics.label}
                                         onChange={(e) => handleBasicChange('label', e.target.value)}
+                                        placeholder="Operational Role"
                                     />
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email</Label>
                                     <Input
-                                        className="rounded-xl border-white/10 bg-white/5 h-12 focus:border-neon-cyan/50 h-11 focus:ring-neon-cyan font-medium text-white"
+                                        className="rounded-xl border-white/10 bg-white/5 h-11 focus:border-neon-cyan/50 focus:ring-neon-cyan font-medium text-white"
                                         value={resume.content.basics.email}
                                         onChange={(e) => handleBasicChange('email', e.target.value)}
+                                        placeholder="Comms Frequency"
                                     />
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Phone</Label>
                                     <Input
-                                        className="rounded-xl border-white/10 bg-white/5 h-12 focus:border-neon-cyan/50 h-11 focus:ring-neon-cyan font-medium text-white"
+                                        className="rounded-xl border-white/10 bg-white/5 h-11 focus:border-neon-cyan/50 focus:ring-neon-cyan font-medium text-white"
                                         value={resume.content.basics.phone}
                                         onChange={(e) => handleBasicChange('phone', e.target.value)}
+                                        placeholder="Direct Uplink"
                                     />
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">LinkedIn URL</Label>
                                     <Input
-                                        className="rounded-xl border-white/10 bg-white/5 h-12 focus:border-neon-cyan/50 h-11 focus:ring-neon-cyan font-medium text-white"
+                                        className="rounded-xl border-white/10 bg-white/5 h-11 focus:border-neon-cyan/50 focus:ring-neon-cyan font-medium text-white"
                                         value={resume.content.basics.linkedinUrl}
                                         onChange={(e) => handleBasicChange('linkedinUrl', e.target.value)}
+                                        placeholder="Social Neural Link"
                                     />
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">GitHub URL</Label>
                                     <Input
-                                        className="rounded-xl border-white/10 bg-white/5 h-12 focus:border-neon-cyan/50 h-11 focus:ring-neon-cyan font-medium text-white"
+                                        className="rounded-xl border-white/10 bg-white/5 h-11 focus:border-neon-cyan/50 focus:ring-neon-cyan font-medium text-white"
                                         value={resume.content.basics.githubUrl}
                                         onChange={(e) => handleBasicChange('githubUrl', e.target.value)}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Portfolio URL</Label>
-                                    <Input
-                                        className="rounded-xl border-white/10 bg-white/5 h-12 focus:border-neon-cyan/50 h-11 focus:ring-neon-cyan font-medium text-white"
-                                        value={resume.content.basics.portfolioUrl}
-                                        onChange={(e) => handleBasicChange('portfolioUrl', e.target.value)}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Personal Website</Label>
-                                    <Input
-                                        className="rounded-xl border-white/10 bg-white/5 h-12 focus:border-neon-cyan/50 h-11 focus:ring-neon-cyan font-medium text-white"
-                                        value={resume.content.basics.url}
-                                        onChange={(e) => handleBasicChange('url', e.target.value)}
+                                        placeholder="Source Repository"
                                     />
                                 </div>
                                 <div className="col-span-2 space-y-2">
@@ -572,55 +604,28 @@ export function ResumeEditor({
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="text-xs text-indigo-600 font-bold h-7 hover:bg-indigo-50"
+                                            className="text-[10px] text-neon-cyan font-black uppercase tracking-widest h-7 hover:bg-neon-cyan/10"
                                             onClick={() => handleImprove('summary')}
                                             disabled={improvingField === 'summary'}
                                         >
-                                            {improvingField === 'summary' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-1" />}
+                                            {improvingField === 'summary' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-2" />}
                                             AI Polish
                                         </Button>
                                     </div>
                                     <Textarea
-                                        className="rounded-2xl border-white/10 bg-white/5 min-h-[120px] focus:border-neon-cyan text-white text-sm leading-relaxed p-6"
+                                        className="rounded-2xl border-white/10 bg-white/5 min-h-[100px] focus:border-neon-cyan text-white text-sm leading-relaxed p-4 placeholder:text-slate-600"
                                         value={resume.content.basics.summary}
                                         onChange={(e) => handleBasicChange('summary', e.target.value)}
+                                        placeholder="Summate your professional existence..."
                                     />
-                                </div>
-                                <div className="col-span-2 space-y-2">
-                                    <div className="space-y-4 pt-4 border-t border-slate-100">
-                                        <div className="flex justify-between items-center">
-                                            <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Career Objective</Label>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-[10px] text-indigo-600 font-bold h-6 hover:bg-indigo-50"
-                                                onClick={() => handleImprove('objective')}
-                                                disabled={improvingField === 'objective'}
-                                            >
-                                                {improvingField === 'objective' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-1" />}
-                                                AI Polish
-                                            </Button>
-                                        </div>
-                                        <Textarea
-                                            className="rounded-xl border-slate-100 bg-slate-50/50 min-h-[80px] focus:ring-indigo-600 font-medium leading-relaxed"
-                                            value={resume.content.basics.objective}
-                                            onChange={(e) => handleBasicChange('objective', e.target.value)}
-                                            placeholder="Optional career goal..."
-                                        />
-                                    </div>
                                 </div>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {/* Work Experience */}
-                <SectionHeader
-                    id="work"
-                    title="Experience"
-                    icon={Briefcase}
-                    desc="Your professional history"
-                />
+                {/* Experience */}
+                <SectionHeader id="work" title="Experience" icon={Briefcase} desc="Professional history and impact" />
                 <AnimatePresence>
                     {expandedSection === "work" && (
                         <motion.div
@@ -629,38 +634,38 @@ export function ResumeEditor({
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="p-8 space-y-10 bg-transparent">
+                            <div className="p-8 space-y-8 bg-transparent">
                                 {resume.content.work.map((exp, idx) => (
-                                    <div key={idx} className="relative p-6 rounded-2xl border border-slate-100 bg-slate-50/30 group">
+                                    <div key={idx} className="relative p-6 rounded-3xl border border-white/10 bg-white/5 group transition-all hover:bg-white/[0.08]">
                                         <button
-                                            onClick={() => removeWork(idx)}
-                                            className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                            onClick={() => removeItem('work', idx)}
+                                            className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
 
-                                        <div className="grid grid-cols-2 gap-4 mb-4">
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Company</Label>
+                                        <div className="grid grid-cols-2 gap-6 mb-6">
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Organization</Label>
                                                 <Input
-                                                    className="rounded-lg h-9 bg-white border-slate-200"
+                                                    className="rounded-xl h-10 bg-slate-950/50 border-white/10 text-white font-bold"
                                                     value={exp.company}
                                                     onChange={(e) => {
-                                                        const newWork = [...resume.content.work];
-                                                        newWork[idx].company = e.target.value;
-                                                        onUpdate({ ...resume, content: { ...resume.content, work: newWork } });
+                                                        const n = [...resume.content.work];
+                                                        n[idx].company = e.target.value;
+                                                        onUpdate({ ...resume, content: { ...resume.content, work: n } });
                                                     }}
                                                 />
                                             </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Position</Label>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Position</Label>
                                                 <Input
-                                                    className="rounded-lg h-9 bg-white border-slate-200"
+                                                    className="rounded-xl h-10 bg-slate-950/50 border-white/10 text-white font-bold"
                                                     value={exp.position}
                                                     onChange={(e) => {
-                                                        const newWork = [...resume.content.work];
-                                                        newWork[idx].position = e.target.value;
-                                                        onUpdate({ ...resume, content: { ...resume.content, work: newWork } });
+                                                        const n = [...resume.content.work];
+                                                        n[idx].position = e.target.value;
+                                                        onUpdate({ ...resume, content: { ...resume.content, work: n } });
                                                     }}
                                                 />
                                             </div>
@@ -668,37 +673,37 @@ export function ResumeEditor({
 
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-center">
-                                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</Label>
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Impact Logs</Label>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="text-[10px] text-indigo-600 font-bold h-6 hover:bg-indigo-50"
+                                                    className="text-[10px] text-neon-cyan font-black uppercase tracking-widest h-6 hover:bg-neon-cyan/10"
                                                     onClick={() => handleImprove('experience', idx)}
                                                     disabled={improvingField === `work-${idx}`}
                                                 >
-                                                    {improvingField === `work-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-1" />}
+                                                    {improvingField === `work-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-2" />}
                                                     Improve with AI
                                                 </Button>
                                             </div>
                                             <Textarea
-                                                className="rounded-lg bg-white border-slate-200 text-sm min-h-[100px]"
+                                                className="rounded-2xl bg-white/5 border-white/10 text-white text-sm min-h-[120px] p-4 leading-relaxed"
                                                 value={exp.description}
                                                 onChange={(e) => {
-                                                    const newWork = [...resume.content.work];
-                                                    newWork[idx].description = e.target.value;
-                                                    onUpdate({ ...resume, content: { ...resume.content, work: newWork } });
+                                                    const n = [...resume.content.work];
+                                                    n[idx].description = e.target.value;
+                                                    onUpdate({ ...resume, content: { ...resume.content, work: n } });
                                                 }}
                                             />
                                         </div>
                                     </div>
                                 ))}
                                 <Button
-                                    onClick={addWork}
+                                    onClick={() => addItem('work', { company: "", position: "", startDate: "", endDate: "", description: "", highlights: [], technologies: [] })}
                                     variant="outline"
-                                    className="w-full h-12 rounded-xl border-dashed border-2 border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-600 hover:bg-indigo-50/50 transition-all font-bold"
+                                    className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"
                                 >
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Add Work Experience
+                                    Add Experience Module
                                 </Button>
                             </div>
                         </motion.div>
@@ -706,12 +711,7 @@ export function ResumeEditor({
                 </AnimatePresence>
 
                 {/* Education */}
-                <SectionHeader
-                    id="education"
-                    title="Education"
-                    icon={GraduationCap}
-                    desc="Schools, degrees, and certificates"
-                />
+                <SectionHeader id="education" title="Education" icon={GraduationCap} desc="Academic neural training" />
                 <AnimatePresence>
                     {expandedSection === "education" && (
                         <motion.div
@@ -720,76 +720,50 @@ export function ResumeEditor({
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="p-8 space-y-10 bg-transparent">
+                            <div className="p-8 space-y-8 bg-transparent">
                                 {resume.content.education.map((edu, idx) => (
-                                    <div key={idx} className="relative p-6 rounded-2xl border border-slate-100 bg-slate-50/30 group">
+                                    <div key={idx} className="relative p-6 rounded-3xl border border-white/10 bg-white/5 group transition-all hover:bg-white/[0.08]">
                                         <button
-                                            onClick={() => removeEducation(idx)}
-                                            className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                            onClick={() => removeItem('education', idx)}
+                                            className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="col-span-2 space-y-1">
-                                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Institution</Label>
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div className="col-span-2 space-y-2">
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Institution</Label>
                                                 <Input
-                                                    className="rounded-lg h-9 bg-white border-slate-200"
+                                                    className="rounded-xl h-10 bg-slate-950/50 border-white/10 text-white font-bold"
                                                     value={edu.institution}
                                                     onChange={(e) => {
-                                                        const newEdu = [...resume.content.education];
-                                                        newEdu[idx].institution = e.target.value;
-                                                        onUpdate({ ...resume, content: { ...resume.content, education: newEdu } });
+                                                        const n = [...resume.content.education];
+                                                        n[idx].institution = e.target.value;
+                                                        onUpdate({ ...resume, content: { ...resume.content, education: n } });
                                                     }}
                                                 />
                                             </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Area of Study</Label>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Field of Study</Label>
                                                 <Input
-                                                    className="rounded-lg h-9 bg-white border-slate-200"
+                                                    className="rounded-xl h-10 bg-slate-950/50 border-white/10 text-white font-bold"
                                                     value={edu.area}
                                                     onChange={(e) => {
-                                                        const newEdu = [...resume.content.education];
-                                                        newEdu[idx].area = e.target.value;
-                                                        onUpdate({ ...resume, content: { ...resume.content, education: newEdu } });
+                                                        const n = [...resume.content.education];
+                                                        n[idx].area = e.target.value;
+                                                        onUpdate({ ...resume, content: { ...resume.content, education: n } });
                                                     }}
                                                 />
                                             </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Degree</Label>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Qualification</Label>
                                                 <Input
-                                                    className="rounded-lg h-9 bg-white border-slate-200"
+                                                    className="rounded-xl h-10 bg-slate-950/50 border-white/10 text-white font-bold"
                                                     value={edu.studyType}
                                                     onChange={(e) => {
-                                                        const newEdu = [...resume.content.education];
-                                                        newEdu[idx].studyType = e.target.value;
-                                                        onUpdate({ ...resume, content: { ...resume.content, education: newEdu } });
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">GPA / Score</Label>
-                                                <Input
-                                                    className="rounded-lg h-9 bg-white border-slate-200"
-                                                    value={edu.score || ""}
-                                                    placeholder="e.g. 3.9/4.0"
-                                                    onChange={(e) => {
-                                                        const newEdu = [...resume.content.education];
-                                                        newEdu[idx].score = e.target.value;
-                                                        onUpdate({ ...resume, content: { ...resume.content, education: newEdu } });
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="col-span-2 space-y-1">
-                                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Honors / Distinctions</Label>
-                                                <Input
-                                                    className="rounded-lg h-9 bg-white border-slate-200"
-                                                    value={edu.honors || ""}
-                                                    placeholder="e.g. Magna Cum Laude, Dean's List"
-                                                    onChange={(e) => {
-                                                        const newEdu = [...resume.content.education];
-                                                        newEdu[idx].honors = e.target.value;
-                                                        onUpdate({ ...resume, content: { ...resume.content, education: newEdu } });
+                                                        const n = [...resume.content.education];
+                                                        n[idx].studyType = e.target.value;
+                                                        onUpdate({ ...resume, content: { ...resume.content, education: n } });
                                                     }}
                                                 />
                                             </div>
@@ -797,12 +771,12 @@ export function ResumeEditor({
                                     </div>
                                 ))}
                                 <Button
-                                    onClick={addEducation}
+                                    onClick={() => addItem('education', { institution: "", area: "", studyType: "", startDate: "", endDate: "", coursework: [] })}
                                     variant="outline"
-                                    className="w-full h-12 rounded-xl border-dashed border-2 border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-600 hover:bg-indigo-50/50 transition-all font-bold"
+                                    className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"
                                 >
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Add Education
+                                    Add Academic Block
                                 </Button>
                             </div>
                         </motion.div>
@@ -824,7 +798,7 @@ export function ResumeEditor({
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="p-8 space-y-6">
+                            <div className="p-8 space-y-6 bg-transparent">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {resume.content.skills.map((skill, idx) => (
                                         <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 group relative transition-all hover:bg-white/[0.07]">
@@ -838,12 +812,12 @@ export function ResumeEditor({
                                                 <div className="space-y-2">
                                                     <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Skill Module</Label>
                                                     <Input
-                                                        className="h-10 bg-slate-950/50 border-white/10 text-white font-bold rounded-xl"
+                                                        className="rounded-xl h-11 bg-white/5 border-white/10 focus:border-neon-cyan/50 focus:ring-neon-cyan text-white font-medium"
                                                         value={skill.name}
                                                         onChange={(e) => {
-                                                            const newSkills = [...resume.content.skills];
-                                                            newSkills[idx].name = e.target.value;
-                                                            onUpdate({ ...resume, content: { ...resume.content, skills: newSkills } });
+                                                            const n = [...resume.content.skills];
+                                                            n[idx].name = e.target.value;
+                                                            onUpdate({ ...resume, content: { ...resume.content, skills: n } });
                                                         }}
                                                         placeholder="e.g. Neural Networks"
                                                     />
@@ -855,11 +829,11 @@ export function ResumeEditor({
                                                             <button
                                                                 key={lvl}
                                                                 onClick={() => {
-                                                                    const newSkills = [...resume.content.skills];
-                                                                    newSkills[idx].level = lvl as any;
-                                                                    onUpdate({ ...resume, content: { ...resume.content, skills: newSkills } });
+                                                                    const n = [...resume.content.skills];
+                                                                    n[idx].level = lvl as any;
+                                                                    onUpdate({ ...resume, content: { ...resume.content, skills: n } });
                                                                 }}
-                                                                className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-tighter transition-all ${skill.level === lvl ? 'bg-neon-cyan text-black shadow-[0_0_15px_rgba(0,242,255,0.4)]' : 'bg-white/5 text-slate-500 border border-white/5 hover:border-white/20'}`}
+                                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${skill.level === lvl ? 'bg-neon-cyan text-black shadow-[0_0_15px_rgba(0,242,255,0.4)]' : 'bg-white/5 text-slate-500 border border-white/10 hover:border-neon-cyan/50'}`}
                                                             >
                                                                 {lvl}
                                                             </button>
@@ -873,9 +847,9 @@ export function ResumeEditor({
                                 <Button
                                     onClick={addSkill}
                                     variant="outline"
-                                    className="w-full border-dashed border-2 py-8 rounded-2xl border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all uppercase font-black text-[10px] tracking-widest"
+                                    className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"
                                 >
-                                    <Plus className="w-5 h-5 mr-3" />
+                                    <Plus className="w-4 h-4 mr-2" />
                                     Integrate New Capability
                                 </Button>
                             </div>
@@ -884,12 +858,7 @@ export function ResumeEditor({
                 </AnimatePresence>
 
                 {/* Projects */}
-                <SectionHeader
-                    id="projects"
-                    title="Projects"
-                    icon={Sparkles}
-                    desc="Key personal or professional projects"
-                />
+                <SectionHeader id="projects" title="Projects & Experiments" icon={Sparkles} desc="Neural architectures and deployments" />
                 <AnimatePresence>
                     {expandedSection === "projects" && (
                         <motion.div
@@ -900,61 +869,64 @@ export function ResumeEditor({
                         >
                             <div className="p-8 space-y-10 bg-transparent">
                                 {resume.content.projects.map((project, idx) => (
-                                    <div key={idx} className="relative p-6 rounded-2xl border border-slate-100 bg-slate-50/30 group">
+                                    <div key={idx} className="relative p-6 rounded-[2rem] border border-white/10 bg-white/5 transition-all hover:bg-white/[0.08] group">
                                         <button
                                             onClick={() => removeProject(idx)}
-                                            className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
-                                        <div className="grid grid-cols-2 gap-4 mb-4">
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Project Name</Label>
+                                        <div className="grid grid-cols-2 gap-6 mb-6">
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Project Name</Label>
                                                 <Input
-                                                    className="h-9 bg-white/5 border-white/10 text-white font-bold"
+                                                    className="rounded-xl h-11 bg-white/5 border-white/10 focus:border-neon-cyan/50 focus:ring-neon-cyan text-white font-medium"
                                                     value={project.name}
                                                     onChange={(e) => {
                                                         const n = [...resume.content.projects];
                                                         n[idx].name = e.target.value;
                                                         onUpdate({ ...resume, content: { ...resume.content, projects: n } });
                                                     }}
+                                                    placeholder="Project Alpha"
                                                 />
                                             </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Role / Contributions</Label>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Role / Tech Stack</Label>
                                                 <Input
-                                                    className="h-9 bg-white/5 border-white/10 text-white font-bold"
+                                                    className="rounded-xl h-11 bg-white/5 border-white/10 focus:border-neon-cyan/50 focus:ring-neon-cyan text-white font-medium"
                                                     value={project.role || ""}
                                                     onChange={(e) => {
                                                         const n = [...resume.content.projects];
                                                         n[idx].role = e.target.value;
                                                         onUpdate({ ...resume, content: { ...resume.content, projects: n } });
                                                     }}
+                                                    placeholder="Lead Architect"
                                                 />
                                             </div>
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="space-y-3">
                                             <div className="flex justify-between items-center">
-                                                <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Description</Label>
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Codebase Log</Label>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="text-[10px] text-indigo-600 font-bold h-6 hover:bg-indigo-50"
+                                                    className="text-[10px] text-neon-cyan font-black uppercase tracking-widest h-7 hover:bg-neon-cyan/10"
                                                     onClick={() => handleImprove('project', idx)}
                                                     disabled={improvingField === `project-${idx}`}
                                                 >
-                                                    {improvingField === `project-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-1" />}
-                                                    Improve with AI
+                                                    {improvingField === `project-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-2" />}
+                                                    AI Refactor
                                                 </Button>
                                             </div>
                                             <Textarea
-                                                className="min-h-[80px] bg-white border-slate-200 text-sm"
+                                                className="rounded-2xl border-white/10 bg-white/5 min-h-[120px] focus:border-neon-cyan text-white text-sm leading-relaxed p-4"
                                                 value={project.description}
                                                 onChange={(e) => {
                                                     const n = [...resume.content.projects];
                                                     n[idx].description = e.target.value;
                                                     onUpdate({ ...resume, content: { ...resume.content, projects: n } });
                                                 }}
+                                                placeholder="Describe the system architecture..."
                                             />
                                         </div>
                                     </div>
@@ -962,10 +934,10 @@ export function ResumeEditor({
                                 <Button
                                     onClick={addProject}
                                     variant="outline"
-                                    className="w-full h-12 rounded-xl border-dashed border-2 border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-600 hover:bg-indigo-50/50 transition-all font-bold"
+                                    className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"
                                 >
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Add Project
+                                    Launch New Project
                                 </Button>
                             </div>
                         </motion.div>
@@ -973,12 +945,7 @@ export function ResumeEditor({
                 </AnimatePresence>
 
                 {/* Certifications */}
-                <SectionHeader
-                    id="certifications"
-                    title="Certifications"
-                    icon={Award}
-                    desc="Professional certificates and awards"
-                />
+                <SectionHeader id="certifications" title="Certifications" icon={Award} desc="Professional validation modules" />
                 <AnimatePresence>
                     {expandedSection === "certifications" && (
                         <motion.div
@@ -987,34 +954,40 @@ export function ResumeEditor({
                             exit={{ height: 0, opacity: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="p-8 space-y-8 bg-transparent">
+                            <div className="p-8 space-y-4 bg-transparent">
                                 {(resume.content.certifications || []).map((cert, idx) => (
-                                    <div key={idx} className="relative p-4 rounded-xl border border-slate-100 bg-slate-50/30 flex gap-4 items-center group">
-                                        <div className="flex-1 grid grid-cols-2 gap-4">
-                                            <Input
-                                                className="rounded-lg h-9 bg-white border-slate-200 text-sm font-bold"
-                                                value={cert.name}
-                                                onChange={(e) => {
-                                                    const newCerts = [...(resume.content.certifications || [])];
-                                                    newCerts[idx].name = e.target.value;
-                                                    onUpdate({ ...resume, content: { ...resume.content, certifications: newCerts } });
-                                                }}
-                                                placeholder="Certification Name"
-                                            />
-                                            <Input
-                                                className="rounded-lg h-9 bg-white border-slate-200 text-sm"
-                                                value={cert.issuer}
-                                                onChange={(e) => {
-                                                    const newCerts = [...(resume.content.certifications || [])];
-                                                    newCerts[idx].issuer = e.target.value;
-                                                    onUpdate({ ...resume, content: { ...resume.content, certifications: newCerts } });
-                                                }}
-                                                placeholder="Issuer (e.g. AWS)"
-                                            />
+                                    <div key={idx} className="relative p-6 rounded-2xl border border-white/10 bg-white/5 flex gap-6 items-center group transition-all hover:bg-white/[0.08]">
+                                        <div className="flex-1 grid grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Protocol Name</Label>
+                                                <Input
+                                                    className="rounded-xl h-10 bg-white/5 border-white/10 text-white font-medium"
+                                                    value={cert.name}
+                                                    onChange={(e) => {
+                                                        const n = [...(resume.content.certifications || [])];
+                                                        n[idx].name = e.target.value;
+                                                        onUpdate({ ...resume, content: { ...resume.content, certifications: n } });
+                                                    }}
+                                                    placeholder="Certification Name"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Issuing Authority</Label>
+                                                <Input
+                                                    className="rounded-xl h-10 bg-white/5 border-white/10 text-white font-medium"
+                                                    value={cert.issuer}
+                                                    onChange={(e) => {
+                                                        const n = [...(resume.content.certifications || [])];
+                                                        n[idx].issuer = e.target.value;
+                                                        onUpdate({ ...resume, content: { ...resume.content, certifications: n } });
+                                                    }}
+                                                    placeholder="Issuer"
+                                                />
+                                            </div>
                                         </div>
                                         <button
                                             onClick={() => removeCertification(idx)}
-                                            className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                            className="text-slate-500 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
                                         >
                                             <Trash2 className="w-5 h-5" />
                                         </button>
@@ -1023,10 +996,10 @@ export function ResumeEditor({
                                 <Button
                                     onClick={addCertification}
                                     variant="outline"
-                                    className="w-full h-10 rounded-xl border-dashed border-2 border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-600 hover:bg-indigo-50 font-bold"
+                                    className="w-full h-12 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"
                                 >
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Add Certification
+                                    Verify New Protocol
                                 </Button>
                             </div>
                         </motion.div>
@@ -1034,12 +1007,7 @@ export function ResumeEditor({
                 </AnimatePresence>
 
                 {/* Languages */}
-                <SectionHeader
-                    id="languages"
-                    title="Languages"
-                    icon={Languages}
-                    desc="Languages you speak"
-                />
+                <SectionHeader id="languages" title="Linguistic Modules" icon={Languages} desc="Communication protocols" />
                 <AnimatePresence>
                     {expandedSection === "languages" && (
                         <motion.div
@@ -1051,39 +1019,39 @@ export function ResumeEditor({
                             <div className="p-8 space-y-8 bg-transparent">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {(resume.content.languages || []).map((lang, idx) => (
-                                        <div key={idx} className="p-4 rounded-xl border border-white/10 bg-white/5 group relative">
+                                        <div key={idx} className="p-6 rounded-[2rem] border border-white/10 bg-white/5 transition-all hover:bg-white/[0.08] group relative">
                                             <button
                                                 onClick={() => removeLanguage(idx)}
-                                                className="absolute top-2 right-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"
+                                                className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
-                                            <div className="space-y-3">
-                                                <div className="space-y-1">
-                                                    <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Language</Label>
+                                            <div className="space-y-4">
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Protocol</Label>
                                                     <Input
-                                                        className="h-9 bg-white/5 border-white/10 text-white font-bold"
+                                                        className="rounded-xl h-10 bg-white/5 border-white/10 text-white font-medium"
                                                         value={lang.language}
                                                         onChange={(e) => {
-                                                            const newLangs = [...(resume.content.languages || [])];
-                                                            newLangs[idx].language = e.target.value;
-                                                            onUpdate({ ...resume, content: { ...resume.content, languages: newLangs } });
+                                                            const n = [...(resume.content.languages || [])];
+                                                            n[idx].language = e.target.value;
+                                                            onUpdate({ ...resume, content: { ...resume.content, languages: n } });
                                                         }}
                                                         placeholder="e.g. English, French"
                                                     />
                                                 </div>
-                                                <div className="space-y-1">
-                                                    <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Fluency</Label>
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Fluency Level</Label>
                                                     <div className="flex gap-1">
                                                         {['Beginner', 'Intermediate', 'Fluent', 'Native'].map(f => (
                                                             <button
                                                                 key={f}
                                                                 onClick={() => {
-                                                                    const newLangs = [...(resume.content.languages || [])];
-                                                                    newLangs[idx].fluency = f as any;
-                                                                    onUpdate({ ...resume, content: { ...resume.content, languages: newLangs } });
+                                                                    const n = [...(resume.content.languages || [])];
+                                                                    n[idx].fluency = f as any;
+                                                                    onUpdate({ ...resume, content: { ...resume.content, languages: n } });
                                                                 }}
-                                                                className={`flex-1 py-1 rounded text-[8px] font-black uppercase tracking-tighter transition-all ${lang.fluency === f ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100 hover:border-slate-200'}`}
+                                                                className={`flex-1 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-tighter transition-all ${lang.fluency === f ? 'bg-neon-purple text-white shadow-[0_0_10px_rgba(188,19,254,0.4)]' : 'bg-white/5 text-slate-500 border border-white/5 hover:border-white/20'}`}
                                                             >
                                                                 {f}
                                                             </button>
@@ -1097,10 +1065,10 @@ export function ResumeEditor({
                                 <Button
                                     onClick={addLanguage}
                                     variant="outline"
-                                    className="w-full border-dashed border-2 py-4 text-slate-400 hover:text-indigo-600"
+                                    className="w-full h-12 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"
                                 >
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Add New Language
+                                    Initialize New Language Module
                                 </Button>
                             </div>
                         </motion.div>
@@ -1108,237 +1076,241 @@ export function ResumeEditor({
                 </AnimatePresence>
 
                 {/* Awards */}
-                <SectionHeader id="awards" title="Awards & Honors" icon={Trophy} desc="Recognition and achievements" />
+                <SectionHeader id="awards" title="Neural Accolades" icon={Trophy} desc="Recognition and achievements" />
                 <AnimatePresence>
                     {expandedSection === "awards" && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                             <div className="p-8 space-y-10 bg-transparent">
                                 {(resume.content.awards || []).map((award, idx) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 relative group">
-                                        <button onClick={() => removeItem('awards', idx)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Award Title</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={award.title} onChange={(e) => { const n = [...(resume.content.awards || [])]; n[idx].title = e.target.value; onUpdate({ ...resume, content: { ...resume.content, awards: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Issuer</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={award.issuer} onChange={(e) => { const n = [...(resume.content.awards || [])]; n[idx].issuer = e.target.value; onUpdate({ ...resume, content: { ...resume.content, awards: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Date</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={award.date} onChange={(e) => { const n = [...(resume.content.awards || [])]; n[idx].date = e.target.value; onUpdate({ ...resume, content: { ...resume.content, awards: n } }); }} /></div>
-                                            <div className="col-span-2 space-y-1">
+                                    <div key={idx} className="p-6 rounded-[2rem] border border-white/10 bg-white/5 transition-all hover:bg-white/[0.08] relative group">
+                                        <button onClick={() => removeItem('awards', idx)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                        <div className="grid grid-cols-2 gap-6 mb-6">
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Award Title</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={award.title} onChange={(e) => { const n = [...(resume.content.awards || [])]; n[idx].title = e.target.value; onUpdate({ ...resume, content: { ...resume.content, awards: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Issuer</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={award.issuer} onChange={(e) => { const n = [...(resume.content.awards || [])]; n[idx].issuer = e.target.value; onUpdate({ ...resume, content: { ...resume.content, awards: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={award.date} onChange={(e) => { const n = [...(resume.content.awards || [])]; n[idx].date = e.target.value; onUpdate({ ...resume, content: { ...resume.content, awards: n } }); }} /></div>
+                                            <div className="col-span-2 space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Description</Label>
-                                                    <Button variant="ghost" size="sm" className="text-[10px] text-indigo-600 font-bold h-6" onClick={() => handleImprove('awards' as any, idx)} disabled={improvingField === `awards-${idx}`}>{improvingField === `awards-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-1" />} Polish</Button>
+                                                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Impact Summary</Label>
+                                                    <Button variant="ghost" size="sm" className="text-[10px] text-neon-cyan font-black uppercase tracking-widest h-7 hover:bg-neon-cyan/10" onClick={() => handleImprove('awards' as any, idx)} disabled={improvingField === `awards-${idx}`}>{improvingField === `awards-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-2" />} AI Polish</Button>
                                                 </div>
-                                                <Textarea className="bg-white/5 min-h-[60px] border-white/10 text-white" value={award.description || ""} onChange={(e) => { const n = [...(resume.content.awards || [])]; n[idx].description = e.target.value; onUpdate({ ...resume, content: { ...resume.content, awards: n } }); }} />
+                                                <Textarea className="rounded-2xl border-white/10 bg-white/5 min-h-[80px] focus:border-neon-cyan text-white text-sm leading-relaxed p-4" value={award.description || ""} onChange={(e) => { const n = [...(resume.content.awards || [])]; n[idx].description = e.target.value; onUpdate({ ...resume, content: { ...resume.content, awards: n } }); }} />
                                             </div>
                                         </div>
                                     </div>
                                 ))}
-                                <Button onClick={() => addItem('awards', { title: "", issuer: "", date: "" })} variant="outline" className="w-full border-dashed"><Plus className="w-4 h-4 mr-2" /> Add Award</Button>
+                                <Button onClick={() => addItem('awards', { title: "", issuer: "", date: "" })} variant="outline" className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"><Plus className="w-4 h-4 mr-2" /> Add Award Module</Button>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Publications */}
-                <SectionHeader id="publications" title="Publications" icon={Book} desc="Articles and research" />
+                <SectionHeader id="publications" title="Neural Publications" icon={Book} desc="Articles and research papers" />
                 <AnimatePresence>
                     {expandedSection === "publications" && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                             <div className="p-8 space-y-10 bg-transparent">
                                 {(resume.content.publications || []).map((pub, idx) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 relative group">
-                                        <button onClick={() => removeItem('publications', idx)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="col-span-2 space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Title</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={pub.title} onChange={(e) => { const n = [...(resume.content.publications || [])]; n[idx].title = e.target.value; onUpdate({ ...resume, content: { ...resume.content, publications: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Publisher</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={pub.publisher} onChange={(e) => { const n = [...(resume.content.publications || [])]; n[idx].publisher = e.target.value; onUpdate({ ...resume, content: { ...resume.content, publications: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">URL</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={pub.url} onChange={(e) => { const n = [...(resume.content.publications || [])]; n[idx].url = e.target.value; onUpdate({ ...resume, content: { ...resume.content, publications: n } }); }} /></div>
-                                            <div className="col-span-2 space-y-1">
+                                    <div key={idx} className="p-6 rounded-[2rem] border border-white/10 bg-white/5 transition-all hover:bg-white/[0.08] relative group">
+                                        <button onClick={() => removeItem('publications', idx)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                        <div className="grid grid-cols-2 gap-6 mb-6">
+                                            <div className="col-span-2 space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Publication Title</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={pub.title} onChange={(e) => { const n = [...(resume.content.publications || [])]; n[idx].title = e.target.value; onUpdate({ ...resume, content: { ...resume.content, publications: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Publisher</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={pub.publisher} onChange={(e) => { const n = [...(resume.content.publications || [])]; n[idx].publisher = e.target.value; onUpdate({ ...resume, content: { ...resume.content, publications: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Source URL</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={pub.url} onChange={(e) => { const n = [...(resume.content.publications || [])]; n[idx].url = e.target.value; onUpdate({ ...resume, content: { ...resume.content, publications: n } }); }} /></div>
+                                            <div className="col-span-2 space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Description / Abstract</Label>
-                                                    <Button variant="ghost" size="sm" className="text-[10px] text-indigo-600 font-bold h-6" onClick={() => handleImprove('publications' as any, idx)} disabled={improvingField === `publications-${idx}`}>{improvingField === `publications-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-1" />} Polish</Button>
+                                                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Abstract / Summary</Label>
+                                                    <Button variant="ghost" size="sm" className="text-[10px] text-neon-cyan font-black uppercase tracking-widest h-7 hover:bg-neon-cyan/10" onClick={() => handleImprove('publications' as any, idx)} disabled={improvingField === `publications-${idx}`}>{improvingField === `publications-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-2" />} AI Polish</Button>
                                                 </div>
-                                                <Textarea className="bg-white/5 min-h-[60px] border-white/10 text-white" value={pub.description || ""} onChange={(e) => { const n = [...(resume.content.publications || [])]; n[idx].description = e.target.value; onUpdate({ ...resume, content: { ...resume.content, publications: n } }); }} />
+                                                <Textarea className="rounded-2xl border-white/10 bg-white/5 min-h-[80px] focus:border-neon-cyan text-white text-sm leading-relaxed p-4" value={pub.description || ""} onChange={(e) => { const n = [...(resume.content.publications || [])]; n[idx].description = e.target.value; onUpdate({ ...resume, content: { ...resume.content, publications: n } }); }} />
                                             </div>
                                         </div>
                                     </div>
                                 ))}
-                                <Button onClick={() => addItem('publications', { title: "", publisher: "", date: "", url: "" })} variant="outline" className="w-full border-dashed"><Plus className="w-4 h-4 mr-2" /> Add Publication</Button>
+                                <Button onClick={() => addItem('publications', { title: "", publisher: "", date: "", url: "" })} variant="outline" className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"><Plus className="w-4 h-4 mr-2" /> Publish Component</Button>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Volunteer */}
-                <SectionHeader id="volunteer" title="Volunteer" icon={Heart} desc="Community contribution" />
+                <SectionHeader id="volunteer" title="Community Impact" icon={Heart} desc="Altruistic neural deployments" />
                 <AnimatePresence>
                     {expandedSection === "volunteer" && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                             <div className="p-8 space-y-10 bg-transparent">
                                 {(resume.content.volunteer || []).map((v, idx) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 relative group">
-                                        <button onClick={() => removeItem('volunteer', idx)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Organization</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={v.organization} onChange={(e) => { const n = [...(resume.content.volunteer || [])]; n[idx].organization = e.target.value; onUpdate({ ...resume, content: { ...resume.content, volunteer: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Role</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={v.role} onChange={(e) => { const n = [...(resume.content.volunteer || [])]; n[idx].role = e.target.value; onUpdate({ ...resume, content: { ...resume.content, volunteer: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Start Date</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={v.startDate} onChange={(e) => { const n = [...(resume.content.volunteer || [])]; n[idx].startDate = e.target.value; onUpdate({ ...resume, content: { ...resume.content, volunteer: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">End Date</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={v.endDate} onChange={(e) => { const n = [...(resume.content.volunteer || [])]; n[idx].endDate = e.target.value; onUpdate({ ...resume, content: { ...resume.content, volunteer: n } }); }} /></div>
-                                            <div className="col-span-2 space-y-1">
+                                    <div key={idx} className="p-6 rounded-[2rem] border border-white/10 bg-white/5 transition-all hover:bg-white/[0.08] relative group">
+                                        <button onClick={() => removeItem('volunteer', idx)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                        <div className="grid grid-cols-2 gap-6 mb-6">
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Organization</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={v.organization} onChange={(e) => { const n = [...(resume.content.volunteer || [])]; n[idx].organization = e.target.value; onUpdate({ ...resume, content: { ...resume.content, volunteer: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Role</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={v.role} onChange={(e) => { const n = [...(resume.content.volunteer || [])]; n[idx].role = e.target.value; onUpdate({ ...resume, content: { ...resume.content, volunteer: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Start Cycle</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={v.startDate} onChange={(e) => { const n = [...(resume.content.volunteer || [])]; n[idx].startDate = e.target.value; onUpdate({ ...resume, content: { ...resume.content, volunteer: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">End Cycle</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={v.endDate} onChange={(e) => { const n = [...(resume.content.volunteer || [])]; n[idx].endDate = e.target.value; onUpdate({ ...resume, content: { ...resume.content, volunteer: n } }); }} /></div>
+                                            <div className="col-span-2 space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Contribution / Highlights</Label>
-                                                    <Button variant="ghost" size="sm" className="text-[10px] text-indigo-600 font-bold h-6" onClick={() => handleImprove('volunteer' as any, idx)} disabled={improvingField === `volunteer-${idx}`}>{improvingField === `volunteer-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-1" />} Polish</Button>
+                                                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Contribution Logs</Label>
+                                                    <Button variant="ghost" size="sm" className="text-[10px] text-neon-cyan font-black uppercase tracking-widest h-7 hover:bg-neon-cyan/10" onClick={() => handleImprove('volunteer' as any, idx)} disabled={improvingField === `volunteer-${idx}`}>{improvingField === `volunteer-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-2" />} AI Polish</Button>
                                                 </div>
-                                                <Textarea className="bg-white/5 min-h-[60px] border-white/10 text-white" value={v.highlights?.[0] || ""} onChange={(e) => { const n = [...(resume.content.volunteer || [])]; n[idx].highlights = [e.target.value]; onUpdate({ ...resume, content: { ...resume.content, volunteer: n } }); }} />
+                                                <Textarea className="rounded-2xl border-white/10 bg-white/5 min-h-[100px] focus:border-neon-cyan text-white text-sm leading-relaxed p-4" value={v.highlights?.[0] || ""} onChange={(e) => { const n = [...(resume.content.volunteer || [])]; n[idx].highlights = [e.target.value]; onUpdate({ ...resume, content: { ...resume.content, volunteer: n } }); }} />
                                             </div>
                                         </div>
                                     </div>
                                 ))}
-                                <Button onClick={() => addItem('volunteer', { organization: "", role: "", startDate: "", endDate: "" })} variant="outline" className="w-full border-dashed"><Plus className="w-4 h-4 mr-2" /> Add Volunteer Work</Button>
+                                <Button onClick={() => addItem('volunteer', { organization: "", role: "", startDate: "", endDate: "" })} variant="outline" className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"><Plus className="w-4 h-4 mr-2" /> Add Altruistic Module</Button>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Leadership */}
-                <SectionHeader id="leadership" title="Leadership" icon={Users} desc="Roles and responsibilities" />
+                <SectionHeader id="leadership" title="Neural Command" icon={Users} desc="Leadership and influence" />
                 <AnimatePresence>
                     {expandedSection === "leadership" && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                            <div className="bg-transparent">
+                            <div className="p-8 space-y-10 bg-transparent">
                                 {(resume.content.leadership || []).map((l, idx) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 relative group">
-                                        <button onClick={() => removeItem('leadership', idx)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Role</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={l.role} onChange={(e) => { const n = [...(resume.content.leadership || [])]; n[idx].role = e.target.value; onUpdate({ ...resume, content: { ...resume.content, leadership: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Organization</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={l.organization} onChange={(e) => { const n = [...(resume.content.leadership || [])]; n[idx].organization = e.target.value; onUpdate({ ...resume, content: { ...resume.content, leadership: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Start Date</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={l.startDate} onChange={(e) => { const n = [...(resume.content.leadership || [])]; n[idx].startDate = e.target.value; onUpdate({ ...resume, content: { ...resume.content, leadership: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">End Date</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={l.endDate} onChange={(e) => { const n = [...(resume.content.leadership || [])]; n[idx].endDate = e.target.value; onUpdate({ ...resume, content: { ...resume.content, leadership: n } }); }} /></div>
-                                            <div className="col-span-2 space-y-1">
+                                    <div key={idx} className="p-6 rounded-[2rem] border border-white/10 bg-white/5 transition-all hover:bg-white/[0.08] relative group">
+                                        <button onClick={() => removeItem('leadership', idx)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                        <div className="grid grid-cols-2 gap-6 mb-6">
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Command Role</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={l.role} onChange={(e) => { const n = [...(resume.content.leadership || [])]; n[idx].role = e.target.value; onUpdate({ ...resume, content: { ...resume.content, leadership: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Organization</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={l.organization} onChange={(e) => { const n = [...(resume.content.leadership || [])]; n[idx].organization = e.target.value; onUpdate({ ...resume, content: { ...resume.content, leadership: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Start Cycle</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={l.startDate} onChange={(e) => { const n = [...(resume.content.leadership || [])]; n[idx].startDate = e.target.value; onUpdate({ ...resume, content: { ...resume.content, leadership: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">End Cycle</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={l.endDate} onChange={(e) => { const n = [...(resume.content.leadership || [])]; n[idx].endDate = e.target.value; onUpdate({ ...resume, content: { ...resume.content, leadership: n } }); }} /></div>
+                                            <div className="col-span-2 space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Impact & Responsibilities</Label>
-                                                    <Button variant="ghost" size="sm" className="text-[10px] text-indigo-600 font-bold h-6" onClick={() => handleImprove('leadership' as any, idx)} disabled={improvingField === `leadership-${idx}`}>{improvingField === `leadership-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-1" />} Polish</Button>
+                                                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Impact & Strategy</Label>
+                                                    <Button variant="ghost" size="sm" className="text-[10px] text-neon-cyan font-black uppercase tracking-widest h-7 hover:bg-neon-cyan/10" onClick={() => handleImprove('leadership' as any, idx)} disabled={improvingField === `leadership-${idx}`}>{improvingField === `leadership-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-2" />} AI Polish</Button>
                                                 </div>
-                                                <Textarea className="bg-white min-h-[80px]" value={l.impact || ""} onChange={(e) => { const n = [...(resume.content.leadership || [])]; n[idx].impact = e.target.value; onUpdate({ ...resume, content: { ...resume.content, leadership: n } }); }} />
+                                                <Textarea className="rounded-2xl border-white/10 bg-white/5 min-h-[100px] focus:border-neon-cyan text-white text-sm leading-relaxed p-4" value={l.impact || l.description || ""} onChange={(e) => { const n = [...(resume.content.leadership || [])]; n[idx].impact = e.target.value; onUpdate({ ...resume, content: { ...resume.content, leadership: n } }); }} />
                                             </div>
                                         </div>
                                     </div>
                                 ))}
-                                <Button onClick={() => addItem('leadership', { role: "", organization: "", startDate: "", endDate: "", description: "", impact: "" })} variant="outline" className="w-full border-dashed"><Plus className="w-4 h-4 mr-2" /> Add Leadership Role</Button>
+                                <Button onClick={() => addItem('leadership', { role: "", organization: "", startDate: "", endDate: "", description: "", impact: "" })} variant="outline" className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"><Plus className="w-4 h-4 mr-2" /> Commission New Role</Button>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Interests */}
-                <SectionHeader id="interests" title="Interests" icon={Target} desc="Hobbies and personal interests" />
+                <SectionHeader id="interests" title="Neural Passions" icon={Target} desc="Hobbies and peripheral focus" />
                 <AnimatePresence>
                     {expandedSection === "interests" && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                            <div className="bg-transparent">
-                                {(resume.content.interests || []).map((i, idx) => (
-                                    <div key={idx} className="relative group flex gap-2">
-                                        <Input className="h-10 bg-white/5 border-white/10 text-white font-bold rounded-xl" value={i.name} onChange={(e) => { const n = [...(resume.content.interests || [])]; n[idx].name = e.target.value; onUpdate({ ...resume, content: { ...resume.content, interests: n } }); }} placeholder="Interest / Hobby" />
-                                        <button onClick={() => removeItem('interests', idx)} className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-                                    </div>
-                                ))}
-                                <Button onClick={() => addItem('interests', { name: "", keywords: [] })} variant="outline" className="w-full border-dashed"><Plus className="w-4 h-4 mr-2" /> Add Interest</Button>
+                            <div className="p-8 space-y-4 bg-transparent">
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {(resume.content.interests || []).map((i, idx) => (
+                                        <div key={idx} className="relative group flex gap-2 p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+                                            <Input className="h-9 bg-transparent border-none text-white font-medium focus-visible:ring-0 placeholder:text-slate-600" value={i.name} onChange={(e) => { const n = [...(resume.content.interests || [])]; n[idx].name = e.target.value; onUpdate({ ...resume, content: { ...resume.content, interests: n } }); }} placeholder="Interest..." />
+                                            <button onClick={() => removeItem('interests', idx)} className="text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all px-2"><Trash2 className="w-4 h-4" /></button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <Button onClick={() => addItem('interests', { name: "", keywords: [] })} variant="outline" className="w-full h-12 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"><Plus className="w-4 h-4 mr-2" /> Inject Passion</Button>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Affiliations */}
-                <SectionHeader id="affiliations" title="Professional Affiliations" icon={Building} desc="Memberships and organizations" />
+                <SectionHeader id="affiliations" title="Neural Networks" icon={Network} desc="Professional memberships" />
                 <AnimatePresence>
                     {expandedSection === "affiliations" && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                            <div className="bg-transparent">
+                            <div className="p-8 space-y-10 bg-transparent">
                                 {(resume.content.affiliations || []).map((a, idx) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 relative group">
-                                        <button onClick={() => removeItem('affiliations', idx)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Organization</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={a.organization} onChange={(e) => { const n = [...(resume.content.affiliations || [])]; n[idx].organization = e.target.value; onUpdate({ ...resume, content: { ...resume.content, affiliations: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Role</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={a.role} onChange={(e) => { const n = [...(resume.content.affiliations || [])]; n[idx].role = e.target.value; onUpdate({ ...resume, content: { ...resume.content, affiliations: n } }); }} /></div>
+                                    <div key={idx} className="p-6 rounded-[2rem] border border-white/10 bg-white/5 transition-all hover:bg-white/[0.08] relative group">
+                                        <button onClick={() => removeItem('affiliations', idx)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                        <div className="grid grid-cols-2 gap-6 mb-6">
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Organization</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={a.organization} onChange={(e) => { const n = [...(resume.content.affiliations || [])]; n[idx].organization = e.target.value; onUpdate({ ...resume, content: { ...resume.content, affiliations: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Role</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={a.role} onChange={(e) => { const n = [...(resume.content.affiliations || [])]; n[idx].role = e.target.value; onUpdate({ ...resume, content: { ...resume.content, affiliations: n } }); }} /></div>
                                         </div>
                                     </div>
                                 ))}
-                                <Button onClick={() => addItem('affiliations', { organization: "", role: "", startDate: "", endDate: "" })} variant="outline" className="w-full border-dashed"><Plus className="w-4 h-4 mr-2" /> Add Affiliation</Button>
+                                <Button onClick={() => addItem('affiliations', { organization: "", role: "" })} variant="outline" className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"><Plus className="w-4 h-4 mr-2" /> Connect New Node</Button>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Patents */}
-                <SectionHeader id="patents" title="Patents" icon={FileCheck} desc="Inventions and filings" />
+                <SectionHeader id="patents" title="Intellectual Assets" icon={Cpu} desc="Patents and inventions" />
                 <AnimatePresence>
                     {expandedSection === "patents" && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                            <div className="bg-transparent">
+                            <div className="p-8 space-y-10 bg-transparent">
                                 {(resume.content.patents || []).map((p, idx) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 relative group">
-                                        <button onClick={() => removeItem('patents', idx)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="col-span-2 space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Patent Title</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={p.title} onChange={(e) => { const n = [...(resume.content.patents || [])]; n[idx].title = e.target.value; onUpdate({ ...resume, content: { ...resume.content, patents: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Number</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={p.number} onChange={(e) => { const n = [...(resume.content.patents || [])]; n[idx].number = e.target.value; onUpdate({ ...resume, content: { ...resume.content, patents: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Date</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={p.date} onChange={(e) => { const n = [...(resume.content.patents || [])]; n[idx].date = e.target.value; onUpdate({ ...resume, content: { ...resume.content, patents: n } }); }} /></div>
-                                            <div className="col-span-2 space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">URL</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={p.url || ""} onChange={(e) => { const n = [...(resume.content.patents || [])]; n[idx].url = e.target.value; onUpdate({ ...resume, content: { ...resume.content, patents: n } }); }} /></div>
+                                    <div key={idx} className="p-6 rounded-[2rem] border border-white/10 bg-white/5 transition-all hover:bg-white/[0.08] relative group">
+                                        <button onClick={() => removeItem('patents', idx)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                        <div className="grid grid-cols-2 gap-6 mb-6">
+                                            <div className="col-span-2 space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Asset Title</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={p.title} onChange={(e) => { const n = [...(resume.content.patents || [])]; n[idx].title = e.target.value; onUpdate({ ...resume, content: { ...resume.content, patents: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Registration ID</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={p.number} onChange={(e) => { const n = [...(resume.content.patents || [])]; n[idx].number = e.target.value; onUpdate({ ...resume, content: { ...resume.content, patents: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={p.date} onChange={(e) => { const n = [...(resume.content.patents || [])]; n[idx].date = e.target.value; onUpdate({ ...resume, content: { ...resume.content, patents: n } }); }} /></div>
                                         </div>
                                     </div>
                                 ))}
-                                <Button onClick={() => addItem('patents', { title: "", number: "", date: "" })} variant="outline" className="w-full border-dashed"><Plus className="w-4 h-4 mr-2" /> Add Patent</Button>
+                                <Button onClick={() => addItem('patents', { title: "", number: "", date: "" })} variant="outline" className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"><Plus className="w-4 h-4 mr-2" /> Register Asset</Button>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Conferences */}
-                <SectionHeader id="conferences" title="Conferences" icon={Presentation} desc="Events and speaking" />
+                <SectionHeader id="conferences" title="Neural Summits" icon={Megaphone} desc="Conference contributions" />
                 <AnimatePresence>
                     {expandedSection === "conferences" && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                            <div className="bg-transparent">
+                            <div className="p-8 space-y-10 bg-transparent">
                                 {(resume.content.conferences || []).map((c, idx) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 relative group">
-                                        <button onClick={() => removeItem('conferences', idx)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="col-span-2 space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Event Name</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={c.name} onChange={(e) => { const n = [...(resume.content.conferences || [])]; n[idx].name = e.target.value; onUpdate({ ...resume, content: { ...resume.content, conferences: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Role</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={c.role} onChange={(e) => { const n = [...(resume.content.conferences || [])]; n[idx].role = e.target.value; onUpdate({ ...resume, content: { ...resume.content, conferences: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Date</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={c.date} onChange={(e) => { const n = [...(resume.content.conferences || [])]; n[idx].date = e.target.value; onUpdate({ ...resume, content: { ...resume.content, conferences: n } }); }} /></div>
-                                            <div className="col-span-2 space-y-1">
+                                    <div key={idx} className="p-6 rounded-[2rem] border border-white/10 bg-white/5 transition-all hover:bg-white/[0.08] relative group">
+                                        <button onClick={() => removeItem('conferences', idx)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                        <div className="grid grid-cols-2 gap-6 mb-6">
+                                            <div className="col-span-2 space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Summit Name</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={c.name} onChange={(e) => { const n = [...(resume.content.conferences || [])]; n[idx].name = e.target.value; onUpdate({ ...resume, content: { ...resume.content, conferences: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Role / Presentation</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={c.role} onChange={(e) => { const n = [...(resume.content.conferences || [])]; n[idx].role = e.target.value; onUpdate({ ...resume, content: { ...resume.content, conferences: n } }); }} /></div>
+                                            <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={c.date} onChange={(e) => { const n = [...(resume.content.conferences || [])]; n[idx].date = e.target.value; onUpdate({ ...resume, content: { ...resume.content, conferences: n } }); }} /></div>
+                                            <div className="col-span-2 space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Description / Talk Abstract</Label>
-                                                    <Button variant="ghost" size="sm" className="text-[10px] text-indigo-600 font-bold h-6" onClick={() => handleImprove('conferences' as any, idx)} disabled={improvingField === `conferences-${idx}`}>{improvingField === `conferences-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-1" />} Polish</Button>
+                                                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Presentation Abstract</Label>
+                                                    <Button variant="ghost" size="sm" className="text-[10px] text-neon-cyan font-black uppercase tracking-widest h-7 hover:bg-neon-cyan/10" onClick={() => handleImprove('conferences' as any, idx)} disabled={improvingField === `conferences-${idx}`}>{improvingField === `conferences-${idx}` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 mr-2" />} AI Polish</Button>
                                                 </div>
-                                                <Textarea className="bg-white/5 min-h-[60px] border-white/10 text-white" value={c.description || ""} onChange={(e) => { const n = [...(resume.content.conferences || [])]; n[idx].description = e.target.value; onUpdate({ ...resume, content: { ...resume.content, conferences: n } }); }} />
+                                                <Textarea className="rounded-2xl border-white/10 bg-white/5 min-h-[100px] focus:border-neon-cyan text-white text-sm leading-relaxed p-4" value={c.description || ""} onChange={(e) => { const n = [...(resume.content.conferences || [])]; n[idx].description = e.target.value; onUpdate({ ...resume, content: { ...resume.content, conferences: n } }); }} />
                                             </div>
                                         </div>
                                     </div>
                                 ))}
-                                <Button onClick={() => addItem('conferences', { name: "", role: "", date: "" })} variant="outline" className="w-full border-dashed"><Plus className="w-4 h-4 mr-2" /> Add Conference</Button>
+                                <Button onClick={() => addItem('conferences', { name: "", role: "", date: "", description: "" })} variant="outline" className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"><Plus className="w-4 h-4 mr-2" /> Connect to Summit</Button>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* References */}
-                <SectionHeader id="references" title="References" icon={PhoneOutgoing} desc="Professional contacts" />
+                <SectionHeader id="references" title="Neural Endorsements" icon={PhoneOutgoing} desc="Professional validation nodes" />
                 <AnimatePresence>
                     {expandedSection === "references" && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                            <div className="bg-transparent">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <input type="checkbox" checked={resume.content.showReferencesToggle} onChange={(e) => onUpdate({ ...resume, content: { ...resume.content, showReferencesToggle: e.target.checked } })} id="ref-toggle" />
-                                    <Label htmlFor="ref-toggle" className="text-xs font-bold text-slate-600">Include "Available upon request"</Label>
+                            <div className="p-8 space-y-10 bg-transparent">
+                                <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 mb-8">
+                                    <input type="checkbox" className="w-4 h-4 rounded-md border-white/10 bg-slate-900 text-neon-cyan focus:ring-neon-cyan" checked={resume.content.showReferencesToggle} onChange={(e) => onUpdate({ ...resume, content: { ...resume.content, showReferencesToggle: e.target.checked } })} id="ref-toggle" />
+                                    <Label htmlFor="ref-toggle" className="text-[10px] font-black uppercase tracking-widest text-slate-400 cursor-pointer">Include "Available upon request"</Label>
                                 </div>
-                                {!resume.content.showReferencesToggle && (resume.content.references || []).map((r, idx) => (
-                                    <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 relative group">
-                                        <button onClick={() => removeItem('references', idx)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Name</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={r.name} onChange={(e) => { const n = [...(resume.content.references || [])]; n[idx].name = e.target.value; onUpdate({ ...resume, content: { ...resume.content, references: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Position</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={r.position} onChange={(e) => { const n = [...(resume.content.references || [])]; n[idx].position = e.target.value; onUpdate({ ...resume, content: { ...resume.content, references: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Company</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={r.company} onChange={(e) => { const n = [...(resume.content.references || [])]; n[idx].company = e.target.value; onUpdate({ ...resume, content: { ...resume.content, references: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Email</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={r.email} onChange={(e) => { const n = [...(resume.content.references || [])]; n[idx].email = e.target.value; onUpdate({ ...resume, content: { ...resume.content, references: n } }); }} /></div>
-                                            <div className="space-y-1"><Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Phone</Label><Input className="h-9 bg-white/5 border-white/10 text-white font-bold" value={r.phone} onChange={(e) => { const n = [...(resume.content.references || [])]; n[idx].phone = e.target.value; onUpdate({ ...resume, content: { ...resume.content, references: n } }); }} /></div>
-                                        </div>
-                                    </div>
-                                ))}
-                                {!resume.content.showReferencesToggle && <Button onClick={() => addItem('references', { name: "", position: "", company: "", email: "", phone: "" })} variant="outline" className="w-full border-dashed"><Plus className="w-4 h-4 mr-2" /> Add Reference</Button>}
+                                {!resume.content.showReferencesToggle && (
+                                    <>
+                                        {(resume.content.references || []).map((r, idx) => (
+                                            <div key={idx} className="p-6 rounded-[2rem] border border-white/10 bg-white/5 transition-all hover:bg-white/[0.08] relative group">
+                                                <button onClick={() => removeItem('references', idx)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 className="w-4 h-4" /></button>
+                                                <div className="grid grid-cols-2 gap-6">
+                                                    <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Endorser Name</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={r.name} onChange={(e) => { const n = [...(resume.content.references || [])]; n[idx].name = e.target.value; onUpdate({ ...resume, content: { ...resume.content, references: n } }); }} /></div>
+                                                    <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Position</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={r.position} onChange={(e) => { const n = [...(resume.content.references || [])]; n[idx].position = e.target.value; onUpdate({ ...resume, content: { ...resume.content, references: n } }); }} /></div>
+                                                    <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Organization</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={r.company} onChange={(e) => { const n = [...(resume.content.references || [])]; n[idx].company = e.target.value; onUpdate({ ...resume, content: { ...resume.content, references: n } }); }} /></div>
+                                                    <div className="space-y-2"><Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Protocol Address (Email)</Label><Input className="rounded-xl h-11 bg-white/5 border-white/10 text-white font-medium" value={r.email} onChange={(e) => { const n = [...(resume.content.references || [])]; n[idx].email = e.target.value; onUpdate({ ...resume, content: { ...resume.content, references: n } }); }} /></div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <Button onClick={() => addItem('references', { name: "", position: "", company: "", email: "", phone: "" })} variant="outline" className="w-full h-14 rounded-2xl border-dashed border-2 border-white/10 text-slate-500 hover:text-neon-cyan hover:border-neon-cyan transition-all font-black text-[10px] uppercase tracking-widest"><Plus className="w-4 h-4 mr-2" /> Connect New Endorser</Button>
+                                    </>
+                                )}
                             </div>
                         </motion.div>
                     )}
